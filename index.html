@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Ajuda | Hub Fazendo as Pazes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        notion: {
+                            bg: '#FFFFFF',
+                            bgDark: '#191919',
+                            text: '#37352F',
+                            textDark: '#D4D4D4',
+                            card: '#F7F7F5',
+                            cardDark: '#202020',
+                            border: '#E9E9E7',
+                            borderDark: '#2F2F2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="bg-notion-bg text-notion-text dark:bg-notion-bgDark dark:text-notion-textDark min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-[#191919]/80 backdrop-blur-md border-b border-notion-border dark:border-notion-borderDark">
+        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-teal-600 rounded flex items-center justify-center text-white text-xs font-bold">FP</div>
+                <span class="font-semibold text-sm">Hub Fazendo as Pazes</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <a href="https://laurapordanydovalle.netlify.app" class="text-sm text-gray-500 hover:text-teal-600 dark:text-gray-400 dark:hover:text-teal-400 transition">Voltar ao Site</a>
+                <!-- Botão Dark Mode -->
+                <button id="theme-toggle" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <!-- Ícone Sol (aparece no dark) -->
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    <!-- Ícone Lua (aparece no light) -->
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero / Busca -->
+    <section class="pt-20 pb-12 px-6 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Como podemos ajudar?</h1>
+            <div class="relative max-w-xl mx-auto group">
+                <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400 group-hover:text-teal-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" placeholder="Pesquisar por temas, sintomas ou ferramentas..." class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-notion-borderDark bg-white dark:bg-[#202020] focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition shadow-sm">
+            </div>
+        </div>
+    </section>
+
+    <!-- Categorias / Cards -->
+    <main class="max-w-5xl mx-auto px-6 py-10 flex-grow w-full">
+        
+        <!-- Seção: Comece Aqui -->
+        <div class="mb-12">
+            <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 ml-1">Para começar</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Card 1 -->
+                <a href="#" class="block p-5 rounded-lg border border-notion-border dark:border-notion-borderDark bg-white dark:bg-notion-cardDark hover:bg-gray-50 dark:hover:bg-[#252525] transition card-hover group">
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl group-hover:scale-110 transition">🗺️</span>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-1">Guia de Navegação</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Entenda como o Hub funciona e por onde começar a sua jornada.</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Card 2 -->
+                <a href="#" class="block p-5 rounded-lg border border-notion-border dark:border-notion-borderDark bg-white dark:bg-notion-cardDark hover:bg-gray-50 dark:hover:bg-[#252525] transition card-hover group">
+                    <div class="flex items-start gap-4">
+                        <span class="text-2xl group-hover:scale-110 transition">🧬</span>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-1">O que é Neurodivergência?</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Conceitos básicos sobre TDAH, Autismo e como o cérebro funciona.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Seção: Biblioteca de Ferramentas -->
+        <div class="mb-12">
+            <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 ml-1">Ferramentas Práticas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <!-- Card -->
+                <a href="#" class="block p-4 rounded-lg border border-notion-border dark:border-notion-borderDark bg-white dark:bg-notion-cardDark hover:border-teal-500 dark:hover:border-teal-500 transition card-hover">
+                    <span class="text-xl mb-2 block">😴</span>
+                    <h3 class="font-semibold mb-1">Higiene do Sono</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Checklist PDF</p>
+                </a>
+                
+                <!-- Card -->
+                <a href="#" class="block p-4 rounded-lg border border-notion-border dark:border-notion-borderDark bg-white dark:bg-notion-cardDark hover:border-teal-500 dark:hover:border-teal-500 transition card-hover">
+                    <span class="text-xl mb-2 block">📊</span>
+                    <h3 class="font-semibold mb-1">Mood Tracker</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Planilha / PDF</p>
+                </a>
+
+                <!-- Card -->
+                <a href="#" class="block p-4 rounded-lg border border-notion-border dark:border-notion-borderDark bg-white dark:bg-notion-cardDark hover:border-teal-500 dark:hover:border-teal-500 transition card-hover">
+                    <span class="text-xl mb-2 block">🆘</span>
+                    <h3 class="font-semibold mb-1">Crise de Ansiedade</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Cartão de Enfrentamento</p>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Seção: Cursos (Premium) -->
+        <div>
+             <h2 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 ml-1">Programas Completos</h2>
+             <div class="rounded-xl border border-teal-200 dark:border-teal-900 bg-teal-50 dark:bg-teal-900/20 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                 <div>
+                     <h3 class="text-xl font-bold text-teal-900 dark:text-teal-100 mb-2">Fazendo as Pazes com o TDAH</h3>
+                     <p class="text-teal-700 dark:text-teal-300 text-sm max-w-md">O nosso programa estruturado para quem quer ir além das dicas rápidas e construir uma rotina que funciona.</p>
+                 </div>
+                 <a href="#" class="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg transition shadow-sm whitespace-nowrap">
+                     Conhecer Programa
+                 </a>
+             </div>
+        </div>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-notion-border dark:border-notion-borderDark mt-auto py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm text-gray-400">© 2025 Hub Fazendo as Pazes. Curadoria Laura do Valle.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Lógica do Dark Mode
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // Verifica preferência salva ou do sistema
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            lightIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            darkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            // Alterna ícones
+            darkIcon.classList.toggle('hidden');
+            lightIcon.classList.toggle('hidden');
+
+            // Se já tem local storage
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                // Se não tem, cria baseado no estado atual
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+```
+```
