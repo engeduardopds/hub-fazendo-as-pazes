@@ -1,5 +1,4 @@
 exports.handler = async function(event, context) {
-    // Permite acesso de qualquer origem (CORS) para evitar erros de bloqueio
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -19,9 +18,8 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        // Recebemos apenas o essencial: Valor final e Descrição
-        // O valor já vem com juros calculados pelo frontend se for o caso
-        const { value, description } = JSON.parse(event.body);
+        // Recebemos dados do frontend
+        const { value, description, billingType, installmentCount } = JSON.parse(event.body);
         
         const valorNumerico = parseFloat(value);
         if (isNaN(valorNumerico) || valorNumerico <= 0) {
@@ -35,18 +33,18 @@ exports.handler = async function(event, context) {
             throw new Error('Configuração de API Key ausente no servidor.');
         }
 
-        // Payload Simplificado e Robusto
-        // billingType: "UNDEFINED" -> Deixa o cliente escolher (Pix, Cartão, Boleto) na tela do Asaas
-        // chargeType: "DETACHED" -> Obrigatório para link de pagamento
-        // maxInstallmentCount: 12 -> Permite que o cliente parcele lá no Asaas se quiser (o valor total já garante o recebimento correto)
+        // Lógica de Parcelas
+        const maxInstallments = installmentCount && parseInt(installmentCount) > 1 ? parseInt(installmentCount) : 1;
+
+        // Payload
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: valorNumerico,
-            billingType: "UNDEFINED", 
+            billingType: billingType || "UNDEFINED", // PIX, CREDIT_CARD ou UNDEFINED
             chargeType: "DETACHED",
             dueDateLimitDays: 3,
-            maxInstallmentCount: 12 
+            maxInstallmentCount: maxInstallments // Define o limite de parcelas no link
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
