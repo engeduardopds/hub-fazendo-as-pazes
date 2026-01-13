@@ -147,7 +147,7 @@
                             <div class="border border-gray-300 rounded-lg p-3 flex flex-col hover:border-teal-500 transition">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
-                                    <span class="font-medium">Crédito à vista ou parcelado</span>
+                                    <span class="font-medium">Crédito (à vista ou parcelado)</span>
                                 </div>
                                 <!-- Dropdown de Parcelas -->
                                 <div id="installments-wrapper" class="hidden mt-3 pt-3 border-t border-gray-200">
@@ -178,7 +178,7 @@
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
-        <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes.</div>
+        <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.</div>
     </footer>
 
     <div id="toast">Item adicionado ao carrinho!</div>
@@ -191,6 +191,7 @@
             { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
+        // TAXAS DE JUROS (PREENCHA COM SEUS VALORES)
         const fees = {
             PIX: 0, 
             DEBIT_CARD: 0,
@@ -313,7 +314,7 @@
             }
 
             document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
-            return { finalTotal };
+            return { finalTotal, method };
         }
 
         async function checkout() {
@@ -324,16 +325,18 @@
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...`;
             btn.disabled = true;
 
-            const { finalTotal } = calculateTotal();
-            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
+            const { finalTotal, method } = calculateTotal();
+            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
 
             try {
+                // Envia o billingType para a API
                 const response = await fetch('/.netlify/functions/create_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         value: finalTotal.toFixed(2), 
-                        description: `Pedido Hub: ${description}`
+                        description: `Pedido Hub: ${description}`,
+                        billingType: method // Envia PIX, DEBIT_CARD ou CREDIT_CARD
                     })
                 });
 
