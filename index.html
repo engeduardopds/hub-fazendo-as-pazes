@@ -4,26 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Ícones (Font Awesome) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Esconde views que não estão ativas */
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-        /* Estilo da Notificação Toast */
         #toast {
-            visibility: hidden; /* Oculto por padrão */
+            visibility: hidden;
             min-width: 280px;
-            background-color: rgba(13, 148, 136, 0.95); /* teal-600 com transparência */
+            background-color: rgba(13, 148, 136, 0.95);
             color: #fff;
             text-align: center;
-            border-radius: 50px; /* Borda bem redonda */
+            border-radius: 50px;
             padding: 12px 24px;
             position: fixed;
             z-index: 100;
@@ -36,27 +33,29 @@
             transition: opacity 0.5s, bottom 0.5s;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
-
-        /* Classe para mostrar o Toast */
         #toast.show {
             visibility: visible;
             opacity: 1;
-            bottom: 50px; /* Sobe um pouquinho ao aparecer */
+            bottom: 50px;
+        }
+        
+        /* Estilo customizado para radios */
+        .payment-radio:checked + div {
+            border-color: #0d9488;
+            background-color: #f0fdfa;
+            color: #0f766e;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Navbar Fixa -->
+    <!-- Navbar -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            <!-- Logo -->
             <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
                 <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">FP</div>
                 <span class="font-bold text-lg tracking-tight">Hub Fazendo as Pazes</span>
             </div>
-
-            <!-- Carrinho -->
             <div class="relative cursor-pointer hover:text-teal-600 transition" onclick="router('cart')">
                 <i class="fa-solid fa-cart-shopping text-xl"></i>
                 <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -64,44 +63,31 @@
         </div>
     </header>
 
-    <!-- ÁREA PRINCIPAL: O CONTEÚDO MUDA AQUI DENTRO -->
     <main class="flex-grow container mx-auto px-6 py-8">
-
-        <!-- VIEW 1: HOME (LISTAGEM DE PRODUTOS) -->
+        <!-- VIEW HOME -->
         <div id="view-home" class="view-section active">
-            <!-- Hero -->
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Loja Oficial</h1>
                 <p class="text-gray-600">Cursos, materiais e ferramentas para sua jornada.</p>
             </div>
-
-            <!-- Gerador de Seções (Injetado via JS) -->
-            <div id="catalog-container" class="space-y-16">
-                <!-- As seções e itens aparecerão aqui -->
-            </div>
+            <div id="catalog-container" class="space-y-16"></div>
         </div>
 
-        <!-- VIEW 2: DETALHES DO PRODUTO -->
+        <!-- VIEW PRODUCT -->
         <div id="view-product" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
             </button>
-
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2">
-                    <!-- Foto do Produto -->
                     <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-8">
                         <span id="detail-icon" class="text-9xl text-gray-300">📦</span>
                     </div>
-                    
-                    <!-- Informações -->
                     <div class="p-8 md:p-12 flex flex-col justify-center">
                         <span id="detail-category" class="text-teal-600 font-bold text-sm uppercase tracking-wide mb-2">Categoria</span>
                         <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Item</h2>
-                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição detalhada do item vai aqui.</p>
+                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição.</p>
                         <div class="text-2xl font-bold text-gray-900 mb-8" id="detail-price">R$ 0,00</div>
-
-                        <!-- Controles -->
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex items-center border border-gray-300 rounded-lg">
                                 <button onclick="updateQty(-1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">-</button>
@@ -110,7 +96,6 @@
                             </div>
                             <span class="text-sm text-gray-500">Unidades</span>
                         </div>
-
                         <button onclick="addToCartCurrent()" class="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition transform active:scale-95 shadow-lg flex items-center justify-center gap-2">
                             <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
                         </button>
@@ -119,33 +104,81 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CARRINHO / CHECKOUT -->
+        <!-- VIEW CART -->
         <div id="view-cart" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
             </button>
-
             <h2 class="text-2xl font-bold mb-6">Seu Carrinho</h2>
-
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Lista de Itens -->
+                <!-- Itens -->
                 <div class="lg:col-span-2 space-y-4" id="cart-items-container">
-                    <!-- Itens do carrinho injetados via JS -->
-                    <div class="text-center py-10 bg-white rounded-lg border border-gray-200">
-                        <p class="text-gray-500">Seu carrinho está vazio.</p>
-                    </div>
+                    <div class="text-center py-10 bg-white rounded-lg border border-gray-200"><p class="text-gray-500">Seu carrinho está vazio.</p></div>
                 </div>
 
-                <!-- Resumo / Pagamento -->
+                <!-- Resumo e Pagamento -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
-                    <h3 class="font-bold text-lg mb-4">Resumo do Pedido</h3>
-                    <div class="flex justify-between mb-2 text-gray-600">
-                        <span>Subtotal</span>
-                        <span id="cart-subtotal">R$ 0,00</span>
+                    <h3 class="font-bold text-lg mb-4">Pagamento</h3>
+                    
+                    <!-- Seleção de Método -->
+                    <div class="space-y-3 mb-6">
+                        <p class="text-sm text-gray-500 font-semibold mb-2">Escolha a forma de pagamento:</p>
+                        
+                        <!-- PIX -->
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="calculateTotal()" checked>
+                            <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
+                                <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
+                                <span class="font-medium">Pix</span>
+                            </div>
+                        </label>
+
+                        <!-- CARTÃO DÉBITO -->
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="calculateTotal()">
+                            <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
+                                <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i>
+                                <span class="font-medium">Débito</span>
+                            </div>
+                        </label>
+
+                        <!-- CARTÃO CRÉDITO -->
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="calculateTotal()">
+                            <div class="border border-gray-300 rounded-lg p-3 flex flex-col hover:border-teal-500 transition">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
+                                    <span class="font-medium">Crédito</span>
+                                </div>
+                                <!-- Parcelas (visível apenas se Crédito for selecionado) -->
+                                <div id="installments-container" class="hidden mt-3 pl-8">
+                                    <select id="installments" class="w-full border border-gray-300 rounded p-2 text-sm" onchange="calculateTotal()">
+                                        <option value="1">1x (À vista)</option>
+                                        <option value="2">2x</option>
+                                        <option value="3">3x</option>
+                                        <option value="4">4x</option>
+                                        <option value="5">5x</option>
+                                        <option value="6">6x</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </label>
                     </div>
-                    <div class="flex justify-between mb-6 text-xl font-bold text-gray-900 border-t pt-4">
-                        <span>Total</span>
-                        <span id="cart-total">R$ 0,00</span>
+
+                    <!-- Valores -->
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between mb-2 text-gray-600">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between mb-2 text-sm text-gray-500" id="fees-row">
+                            <span>Taxas/Juros</span>
+                            <span id="cart-fees">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between mb-6 text-xl font-bold text-gray-900 border-t pt-4">
+                            <span>Total</span>
+                            <span id="cart-total">R$ 0,00</span>
+                        </div>
                     </div>
                     
                     <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md mb-3 flex justify-center items-center gap-2">
@@ -155,253 +188,167 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
-        <div class="container mx-auto px-6 text-center text-sm text-gray-500">
-            &copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.
-        </div>
+        <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes.</div>
     </footer>
 
-    <!-- ELEMENTO TOAST (Notificação) -->
     <div id="toast">Item adicionado ao carrinho!</div>
 
-    <!-- LÓGICA DO SISTEMA -->
     <script>
-        // --- 1. BANCO DE DADOS (CONFIGURAÇÃO FÁCIL) ---
-        // Aqui você define suas seções e itens.
+        // --- 1. BANCO DE DADOS ---
         const db = [
-            {
-                title: "Seção 1: Cursos Online",
-                items: [
-                    { id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição completa do Curso sobre TDAH. Módulos, aulas gravadas e certificado." },
-                    { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso focado em técnicas de regulação emocional para ansiedade." }
-                ]
-            },
-            {
-                title: "Seção 2: E-books e Textos",
-                items: [
-                    { id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia prático em PDF para organizar sua rotina matinal." },
-                    { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas de organização financeira e de tarefas." }
-                ]
-            },
-            {
-                title: "Seção 3: Impressões 3D (Neurodivergente)",
-                items: [
-                    { id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo sensorial impresso em 3D para foco e alívio de estresse." },
-                    { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador de mesa modular impresso em 3D." }
-                ]
-            }
+            { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
+            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
+            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
-        // --- 2. ESTADO DA APLICAÇÃO ---
-        let cart = []; // Carrinho vazio
+        // --- 2. CONFIGURAÇÃO DE TAXAS (PREENCHA COM SEUS VALORES DA IMAGEM 2) ---
+        // Exemplo: se a taxa é 2.99%, coloque 0.0299
+        const fees = {
+            PIX: 0.00, // Ex: 0%
+            DEBIT_CARD: 0.02, // Ex: 2%
+            CREDIT_CARD: {
+                1: 0.03, // 1x
+                2: 0.04, // 2x
+                3: 0.05, // 3x
+                4: 0.06, // 4x
+                5: 0.07, // 5x
+                6: 0.08  // 6x
+            }
+        };
+
+        let cart = [];
         let currentItem = null;
         let currentQty = 1;
 
-        // --- 3. INICIALIZAÇÃO ---
-        function init() {
-            renderCatalog();
-            updateCartIcon();
-        }
+        function init() { renderCatalog(); updateCartIcon(); }
 
-        // --- 4. ROTEAMENTO (SPA) ---
         function router(viewName) {
-            // Esconde todas as views
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            // Mostra a desejada
             document.getElementById(`view-${viewName}`).classList.add('active');
-            
-            // Scroll para o topo
             window.scrollTo(0, 0);
-
-            if (viewName === 'cart') {
-                renderCart();
-            }
+            if (viewName === 'cart') renderCart();
         }
 
-        // --- 5. RENDERIZAR O CATÁLOGO (HOME) ---
         function renderCatalog() {
             const container = document.getElementById('catalog-container');
             container.innerHTML = '';
-
             db.forEach(section => {
-                // Cria o HTML da Seção
                 let itemsHtml = '';
                 section.items.forEach(item => {
-                    itemsHtml += `
-                        <div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group">
-                            <div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">
-                                ${item.icon}
-                            </div>
-                            <h3 class="font-bold text-gray-900 text-lg mb-1">${item.name}</h3>
-                            <p class="text-teal-600 font-semibold">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
-                        </div>
-                    `;
+                    itemsHtml += `<div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">${item.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1">${item.name}</h3><p class="text-teal-600 font-semibold">R$ ${item.price.toFixed(2).replace('.', ',')}</p></div>`;
                 });
-
-                const sectionHtml = `
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${section.title}</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                            ${itemsHtml}
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += sectionHtml;
+                container.innerHTML += `<div><h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${section.title}</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">${itemsHtml}</div></div>`;
             });
         }
 
-        // --- 6. ABRIR PÁGINA DO PRODUTO ---
         function openProduct(id) {
-            let product = null;
-            let category = "";
-            
-            db.forEach(section => {
-                const found = section.items.find(i => i.id === id);
-                if (found) {
-                    product = found;
-                    category = section.title;
-                }
-            });
-
+            let product = null, category = "";
+            db.forEach(section => { const found = section.items.find(i => i.id === id); if (found) { product = found; category = section.title; } });
             if (!product) return;
-
-            currentItem = product;
-            currentQty = 1;
-            
+            currentItem = product; currentQty = 1;
             document.getElementById('detail-icon').textContent = product.icon;
             document.getElementById('detail-category').textContent = category;
             document.getElementById('detail-title').textContent = product.name;
             document.getElementById('detail-desc').textContent = product.desc;
             document.getElementById('detail-price').textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
             document.getElementById('detail-qty').textContent = currentQty;
-
             router('product');
         }
 
-        // --- 7. LÓGICA DO PRODUTO ---
-        function updateQty(amount) {
-            if (currentQty + amount >= 1) {
-                currentQty += amount;
-                document.getElementById('detail-qty').textContent = currentQty;
-            }
-        }
-
-        // Função de Notificação (Toast)
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`;
-            toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-
+        function updateQty(amount) { if (currentQty + amount >= 1) { currentQty += amount; document.getElementById('detail-qty').textContent = currentQty; } }
+        function showToast(message) { const t = document.getElementById("toast"); t.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`; t.className = "show"; setTimeout(() => t.className = "", 3000); }
         function addToCartCurrent() {
             const existing = cart.find(i => i.id === currentItem.id);
-            if (existing) {
-                existing.qty += currentQty;
-            } else {
-                cart.push({ ...currentItem, qty: currentQty });
-            }
-            updateCartIcon();
-            showToast(`${currentQty}x ${currentItem.name} adicionado!`);
+            if (existing) existing.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
+            updateCartIcon(); showToast(`${currentQty}x ${currentItem.name} adicionado!`);
         }
+        function updateCartIcon() { document.getElementById('cart-count').textContent = cart.reduce((acc, item) => acc + item.qty, 0); }
+        function removeFromCart(index) { cart.splice(index, 1); renderCart(); updateCartIcon(); }
 
-        function updateCartIcon() {
-            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
-            document.getElementById('cart-count').textContent = totalQty;
-        }
-
-        // --- 8. LÓGICA DO CARRINHO ---
         function renderCart() {
             const container = document.getElementById('cart-items-container');
             container.innerHTML = '';
-            let total = 0;
-
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 bg-white rounded-lg border border-gray-200"><p class="text-gray-500">Seu carrinho está vazio.</p></div>';
-            } else {
+            if (cart.length === 0) { container.innerHTML = '<div class="text-center py-10 bg-white rounded-lg border border-gray-200"><p class="text-gray-500">Seu carrinho está vazio.</p></div>'; }
+            else {
                 cart.forEach((item, index) => {
-                    const itemTotal = item.price * item.qty;
-                    total += itemTotal;
-                    
-                    container.innerHTML += `
-                        <div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div>
-                                <div>
-                                    <h4 class="font-bold text-gray-900">${item.name}</h4>
-                                    <p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="font-bold text-teal-700">R$ ${itemTotal.toFixed(2).replace('.', ',')}</span>
-                                <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
+                    container.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div><div><h4 class="font-bold text-gray-900">${item.name}</h4><p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p></div></div><div class="flex items-center gap-4"><span class="font-bold text-teal-700">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span><button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`;
                 });
             }
-
-            const totalFormatted = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('cart-subtotal').textContent = totalFormatted;
-            document.getElementById('cart-total').textContent = totalFormatted;
+            calculateTotal(); // Recalcula totais ao renderizar
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            renderCart();
-            updateCartIcon();
-        }
+        // --- CÁLCULO DE TOTAIS E TAXAS ---
+        function calculateTotal() {
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            
+            // Obtém método selecionado
+            const method = document.querySelector('input[name="payment_method"]:checked').value;
+            const installmentsDiv = document.getElementById('installments-container');
+            let feeRate = 0;
 
-        // --- 9. CHECKOUT COM ASAAS (INTEGRAÇÃO REAL) ---
-        async function checkout() {
-            if (cart.length === 0) {
-                showToast("Seu carrinho está vazio.");
-                return;
+            if (method === 'CREDIT_CARD') {
+                installmentsDiv.classList.remove('hidden');
+                const inst = parseInt(document.getElementById('installments').value);
+                feeRate = fees.CREDIT_CARD[inst] || 0;
+            } else {
+                installmentsDiv.classList.add('hidden');
+                feeRate = fees[method] || 0;
             }
+
+            // Cálculo dos juros (Simples: Valor * (1 + Taxa))
+            // Ajuste a fórmula se sua taxa for "por parcela" ou composta
+            const totalWithFees = subtotal * (1 + feeRate);
+            const feeValue = totalWithFees - subtotal;
+
+            document.getElementById('cart-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-fees').textContent = `+ R$ ${feeValue.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-total').textContent = `R$ ${totalWithFees.toFixed(2).replace('.', ',')}`;
+
+            return { totalWithFees, method, installments: (method === 'CREDIT_CARD' ? parseInt(document.getElementById('installments').value) : 1) };
+        }
+
+        // --- CHECKOUT ---
+        async function checkout() {
+            if (cart.length === 0) { showToast("Carrinho vazio!"); return; }
 
             const btn = document.getElementById('btn-checkout');
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Gerando Pagamento...`;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...`;
             btn.disabled = true;
 
-            // Calcula o total
-            const totalValue = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            
-            // Prepara a descrição do pedido
-            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
+            const { totalWithFees, method, installments } = calculateTotal();
+            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
 
             try {
-                // Chama a Netlify Function (Backend Seguro)
                 const response = await fetch('/.netlify/functions/create_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        value: totalValue,
-                        description: `Pedido Hub Fazendo as Pazes: ${description}`
+                    body: JSON.stringify({ 
+                        value: totalWithFees.toFixed(2), // Envia valor final calculado
+                        description: description,
+                        billingType: method, // Envia PIX, CREDIT_CARD ou DEBIT_CARD
+                        installmentCount: installments // Envia nº parcelas
                     })
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.paymentUrl) {
-                    // Sucesso! Redireciona para o Asaas
                     window.location.href = data.paymentUrl;
                 } else {
                     throw new Error(data.error || 'Erro ao criar pagamento');
                 }
-
             } catch (error) {
-                console.error("Erro no checkout:", error);
-                alert("Ocorreu um erro ao gerar o pagamento. Por favor, tente novamente ou entre em contato.");
+                console.error("Erro checkout:", error);
+                alert("Erro: " + error.message);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
 
-        // Inicia o app
         init();
     </script>
 </body>
