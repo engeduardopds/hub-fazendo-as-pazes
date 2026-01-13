@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
@@ -39,17 +39,16 @@
             bottom: 50px;
         }
         
-        /* Estilo customizado para radios */
         .payment-radio:checked + div {
             border-color: #0d9488;
             background-color: #f0fdfa;
             color: #0f766e;
+            font-weight: 600;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
@@ -64,7 +63,8 @@
     </header>
 
     <main class="flex-grow container mx-auto px-6 py-8">
-        <!-- VIEW HOME -->
+        
+        <!-- HOME -->
         <div id="view-home" class="view-section active">
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Loja Oficial</h1>
@@ -73,7 +73,7 @@
             <div id="catalog-container" class="space-y-16"></div>
         </div>
 
-        <!-- VIEW PRODUCT -->
+        <!-- PRODUCT -->
         <div id="view-product" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
@@ -104,7 +104,7 @@
             </div>
         </div>
 
-        <!-- VIEW CART -->
+        <!-- CART / CHECKOUT -->
         <div id="view-cart" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
@@ -120,62 +120,49 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
                     <h3 class="font-bold text-lg mb-4">Pagamento</h3>
                     
-                    <!-- Seleção de Método -->
                     <div class="space-y-3 mb-6">
-                        <p class="text-sm text-gray-500 font-semibold mb-2">Escolha a forma de pagamento:</p>
+                        <p class="text-sm text-gray-500 font-semibold mb-2">Forma de pagamento:</p>
                         
                         <!-- PIX -->
                         <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="calculateTotal()" checked>
+                            <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
                             <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
                                 <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
-                                <span class="font-medium">Pix</span>
+                                <span class="font-medium">Pix (À vista)</span>
                             </div>
                         </label>
 
-                        <!-- CARTÃO DÉBITO -->
+                        <!-- DÉBITO -->
                         <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="calculateTotal()">
+                            <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
                             <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
                                 <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i>
-                                <span class="font-medium">Débito</span>
+                                <span class="font-medium">Débito (À vista)</span>
                             </div>
                         </label>
 
-                        <!-- CARTÃO CRÉDITO -->
+                        <!-- CRÉDITO -->
                         <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="calculateTotal()">
+                            <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
                             <div class="border border-gray-300 rounded-lg p-3 flex flex-col hover:border-teal-500 transition">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
-                                    <span class="font-medium">Crédito</span>
+                                    <span class="font-medium">Crédito (Parcelado)</span>
                                 </div>
-                                <!-- Parcelas (visível apenas se Crédito for selecionado) -->
-                                <div id="installments-container" class="hidden mt-3 pl-8">
-                                    <select id="installments" class="w-full border border-gray-300 rounded p-2 text-sm" onchange="calculateTotal()">
-                                        <option value="1">1x (À vista)</option>
-                                        <option value="2">2x</option>
-                                        <option value="3">3x</option>
-                                        <option value="4">4x</option>
-                                        <option value="5">5x</option>
-                                        <option value="6">6x</option>
+                                <!-- Dropdown de Parcelas (Preenchido via JS) -->
+                                <div id="installments-wrapper" class="hidden mt-3 pt-3 border-t border-gray-200">
+                                    <label class="text-xs text-gray-500 block mb-1">Selecione as parcelas:</label>
+                                    <select id="installments" class="w-full border border-gray-300 rounded p-2 text-sm bg-white" onchange="calculateTotal()">
+                                        <!-- Opções injetadas via JS -->
                                     </select>
                                 </div>
                             </div>
                         </label>
                     </div>
 
-                    <!-- Valores -->
+                    <!-- Totais -->
                     <div class="border-t pt-4">
-                        <div class="flex justify-between mb-2 text-gray-600">
-                            <span>Subtotal</span>
-                            <span id="cart-subtotal">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between mb-2 text-sm text-gray-500" id="fees-row">
-                            <span>Taxas/Juros</span>
-                            <span id="cart-fees">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between mb-6 text-xl font-bold text-gray-900 border-t pt-4">
+                        <div class="flex justify-between mb-6 text-xl font-bold text-gray-900">
                             <span>Total</span>
                             <span id="cart-total">R$ 0,00</span>
                         </div>
@@ -197,25 +184,25 @@
     <div id="toast">Item adicionado ao carrinho!</div>
 
     <script>
-        // --- 1. BANCO DE DADOS ---
+        // --- DADOS E TAXAS ---
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
             { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
             { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
-        // --- 2. CONFIGURAÇÃO DE TAXAS (PREENCHA COM SEUS VALORES DA IMAGEM 2) ---
-        // Exemplo: se a taxa é 2.99%, coloque 0.0299
+        // TAXAS DE JUROS (Exemplo: 0.05 = 5%)
+        // Preencha com os valores reais da sua tabela
         const fees = {
-            PIX: 0.00, // Ex: 0%
-            DEBIT_CARD: 0.02, // Ex: 2%
+            PIX: 0, 
+            DEBIT_CARD: 0,
             CREDIT_CARD: {
-                1: 0.03, // 1x
-                2: 0.04, // 2x
-                3: 0.05, // 3x
-                4: 0.06, // 4x
-                5: 0.07, // 5x
-                6: 0.08  // 6x
+                1: 0.00, // 1x (Sem juros ou taxa da tabela)
+                2: 0.04, // 4%
+                3: 0.05, // 5%
+                4: 0.06, 
+                5: 0.07, 
+                6: 0.08  
             }
         };
 
@@ -229,7 +216,7 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
             window.scrollTo(0, 0);
-            if (viewName === 'cart') renderCart();
+            if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
         }
 
         function renderCatalog() {
@@ -260,6 +247,7 @@
 
         function updateQty(amount) { if (currentQty + amount >= 1) { currentQty += amount; document.getElementById('detail-qty').textContent = currentQty; } }
         function showToast(message) { const t = document.getElementById("toast"); t.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`; t.className = "show"; setTimeout(() => t.className = "", 3000); }
+        
         function addToCartCurrent() {
             const existing = cart.find(i => i.id === currentItem.id);
             if (existing) existing.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
@@ -277,40 +265,59 @@
                     container.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div><div><h4 class="font-bold text-gray-900">${item.name}</h4><p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p></div></div><div class="flex items-center gap-4"><span class="font-bold text-teal-700">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span><button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`;
                 });
             }
-            calculateTotal(); // Recalcula totais ao renderizar
         }
 
-        // --- CÁLCULO DE TOTAIS E TAXAS ---
-        function calculateTotal() {
-            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            
-            // Obtém método selecionado
+        // --- LÓGICA DE PAGAMENTO E UI ---
+        function updatePaymentUI() {
             const method = document.querySelector('input[name="payment_method"]:checked').value;
-            const installmentsDiv = document.getElementById('installments-container');
-            let feeRate = 0;
+            const installmentsWrapper = document.getElementById('installments-wrapper');
+            const select = document.getElementById('installments');
+            
+            // Só mostra parcelas se for CRÉDITO
+            if (method === 'CREDIT_CARD') {
+                installmentsWrapper.classList.remove('hidden');
+                
+                // Calcula o valor base (sem juros)
+                const baseTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                
+                // Reconstrói o <select> com os valores calculados
+                select.innerHTML = '';
+                for (let i = 1; i <= 6; i++) {
+                    const rate = fees.CREDIT_CARD[i] || 0;
+                    const totalWithInterest = baseTotal * (1 + rate);
+                    const installmentValue = totalWithInterest / i;
+                    
+                    const optionText = `${i}x de R$ ${installmentValue.toFixed(2).replace('.', ',')} (Total: R$ ${totalWithInterest.toFixed(2).replace('.', ',')})`;
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.text = optionText;
+                    select.appendChild(option);
+                }
+            } else {
+                installmentsWrapper.classList.add('hidden');
+            }
+            
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const baseTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const method = document.querySelector('input[name="payment_method"]:checked').value;
+            let finalTotal = baseTotal;
 
             if (method === 'CREDIT_CARD') {
-                installmentsDiv.classList.remove('hidden');
-                const inst = parseInt(document.getElementById('installments').value);
-                feeRate = fees.CREDIT_CARD[inst] || 0;
+                const inst = parseInt(document.getElementById('installments').value) || 1;
+                const rate = fees.CREDIT_CARD[inst] || 0;
+                finalTotal = baseTotal * (1 + rate);
             } else {
-                installmentsDiv.classList.add('hidden');
-                feeRate = fees[method] || 0;
+                // Pix ou Débito (Sem juros adicionais aqui, a não ser que queira)
+                finalTotal = baseTotal * (1 + fees[method]);
             }
 
-            // Cálculo dos juros (Simples: Valor * (1 + Taxa))
-            // Ajuste a fórmula se sua taxa for "por parcela" ou composta
-            const totalWithFees = subtotal * (1 + feeRate);
-            const feeValue = totalWithFees - subtotal;
-
-            document.getElementById('cart-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-            document.getElementById('cart-fees').textContent = `+ R$ ${feeValue.toFixed(2).replace('.', ',')}`;
-            document.getElementById('cart-total').textContent = `R$ ${totalWithFees.toFixed(2).replace('.', ',')}`;
-
-            return { totalWithFees, method, installments: (method === 'CREDIT_CARD' ? parseInt(document.getElementById('installments').value) : 1) };
+            document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
+            return { finalTotal };
         }
 
-        // --- CHECKOUT ---
         async function checkout() {
             if (cart.length === 0) { showToast("Carrinho vazio!"); return; }
 
@@ -319,18 +326,18 @@
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...`;
             btn.disabled = true;
 
-            const { totalWithFees, method, installments } = calculateTotal();
-            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
+            const { finalTotal } = calculateTotal();
+            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
 
             try {
+                // Envia o valor FINAL calculado para a API
+                // A API cria um link de pagamento genérico com esse valor
                 const response = await fetch('/.netlify/functions/create_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        value: totalWithFees.toFixed(2), // Envia valor final calculado
-                        description: description,
-                        billingType: method, // Envia PIX, CREDIT_CARD ou DEBIT_CARD
-                        installmentCount: installments // Envia nº parcelas
+                        value: finalTotal.toFixed(2), 
+                        description: `Pedido Hub: ${description}`
                     })
                 });
 
@@ -343,7 +350,7 @@
                 }
             } catch (error) {
                 console.error("Erro checkout:", error);
-                alert("Erro: " + error.message);
+                alert("Erro ao conectar: " + error.message);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
