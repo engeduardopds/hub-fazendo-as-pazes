@@ -1,40 +1,52 @@
-const fetch = require('node-fetch');
+// Removemos o require('node-fetch') pois o Node 18+ já tem fetch nativo
 
 exports.handler = async function(event, context) {
-    // 1. Segurança: Só aceita pedidos do tipo POST
+    // 1. Cabeçalhos para permitir CORS (caso teste localmente ou de outro domínio)
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+    };
+
+    // 2. Tratamento para requisições OPTIONS (Pre-flight do browser)
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 200, headers, body: '' };
+    }
+
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Método não permitido' };
+        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método não permitido' }) };
     }
 
     try {
-        // 2. Recebe os dados do carrinho (Frontend)
+        if (!event.body) {
+            throw new Error('Corpo da requisição vazio.');
+        }
+
         const { value, description } = JSON.parse(event.body);
 
-        // 3. Configurações do Asaas
-        // IMPORTANTE: URL do SANDBOX para testes
+        // 3. Configurações do Asaas (Sandbox)
         const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
-        
-        // A chave deve estar nas Variáveis de Ambiente do Netlify (Site settings > Environment variables)
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
-            console.error("Erro: ASAAS_API_KEY não encontrada.");
-            throw new Error('Configuração de servidor incompleta (Falta API Key).');
+            console.error("ERRO CRÍTICO: Variável ASAAS_API_KEY não encontrada no Netlify.");
+            throw new Error('Configuração de API Key ausente no servidor.');
         }
 
-        // 4. Cria o Link de Pagamento
+        // 4. Cria o Payload
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
-            value: value, // Valor total do carrinho
-            billingType: "UNDEFINED", // Permite ao usuário escolher (Pix, Cartão, Boleto)
-            chargeType: "DETACHED",   // Cobrança avulsa (Link)
-            dueDateLimitDays: 3,      // O link vence em 3 dias
-            maxInstallmentCount: 12   // Permite parcelar em até 12x
+            value: parseFloat(value), // Garante que é número
+            billingType: "UNDEFINED",
+            chargeType: "DETACHED",
+            dueDateLimitDays: 3,
+            maxInstallmentCount: 12
         };
 
-        console.log("Enviando para Asaas Sandbox:", JSON.stringify(payload));
+        console.log("Enviando payload para Asaas:", JSON.stringify(payload));
 
+        // 5. Chamada ao Asaas usando fetch nativo
         const response = await fetch(ASAAS_URL, {
             method: 'POST',
             headers: {
@@ -46,16 +58,17 @@ exports.handler = async function(event, context) {
 
         const data = await response.json();
 
-        // 5. Verifica se deu erro no Asaas
         if (!response.ok) {
-            console.error('Erro Asaas:', data);
-            const errorMsg = data.errors && data.errors[0] ? data.errors[0].description : 'Erro desconhecido no Asaas';
-            throw new Error(errorMsg);
+            console.error('Resposta de Erro do Asaas:', JSON.stringify(data));
+            // Tenta extrair a mensagem de erro específica do Asaas
+            const errorMsg = data.errors && data.errors[0] ? data.errors[0].description : 'Erro desconhecido na API do Asaas';
+            throw new Error(`Asaas recusou: ${errorMsg}`);
         }
 
-        // 6. Sucesso: Devolve o Link para o site
+        // 6. Sucesso
         return {
             statusCode: 200,
+            headers,
             body: JSON.stringify({ paymentUrl: data.url })
         };
 
@@ -63,9 +76,8 @@ exports.handler = async function(event, context) {
         console.error('Erro na função create_payment:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message })
+            headers,
+            body: JSON.stringify({ error: error.message || "Erro interno no servidor" })
         };
     }
 };
-```
-```
