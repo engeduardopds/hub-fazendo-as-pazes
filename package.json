@@ -1,0 +1,8 @@
+{
+  "name": "hub-fazendo-as-pazes",
+  "version": "1.0.0",
+  "description": "Hub de conteúdo e loja",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
