@@ -18,8 +18,8 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        // Recebemos o billingType do frontend (PIX, CREDIT_CARD, etc.)
-        const { value, description, billingType } = JSON.parse(event.body);
+        // Recebemos dados do frontend
+        const { value, description, billingType, installmentCount } = JSON.parse(event.body);
         
         const valorNumerico = parseFloat(value);
         if (isNaN(valorNumerico) || valorNumerico <= 0) {
@@ -33,17 +33,19 @@ exports.handler = async function(event, context) {
             throw new Error('Configuração de API Key ausente no servidor.');
         }
 
+        // Lógica de Parcelas:
+        // Se o frontend mandou installmentCount > 1 (ex: 6x), permitimos até esse número no Asaas.
+        // Se não mandou ou é 1, travamos em 1x.
+        const maxInstallments = installmentCount && installmentCount > 1 ? parseInt(installmentCount) : 1;
+
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: valorNumerico,
-            // AGORA USAMOS O TIPO ESCOLHIDO NO SITE
-            // Se o site mandar 'PIX', o link abre direto no Pix.
-            // Se mandar 'CREDIT_CARD', abre direto no cartão.
             billingType: billingType || "UNDEFINED", 
             chargeType: "DETACHED",
             dueDateLimitDays: 3,
-            maxInstallmentCount: 1 // Como já calculamos os juros no total, deixamos 1x no Asaas para ele cobrar o valor cheio que enviamos.
+            maxInstallmentCount: maxInstallments // Permite parcelamento se > 1
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
@@ -80,3 +82,5 @@ exports.handler = async function(event, context) {
         };
     }
 };
+```
+```eof
