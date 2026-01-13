@@ -1,9 +1,6 @@
 // Usamos fetch nativo (Node 18+)
-// Se der erro de 'fetch is not defined', certifique-se de que o site no Netlify 
-// está configurado para usar Node 18 em: Site settings > Build & deploy > Environment variables > AWS_LAMBDA_JS_RUNTIME = nodejs18.x
 
 exports.handler = async function(event, context) {
-    // Cabeçalhos padrão
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -23,7 +20,8 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        const { value, description } = JSON.parse(event.body);
+        // Recebemos o billingType (PIX, CREDIT_CARD, DEBIT_CARD) do frontend
+        const { value, description, billingType, installmentCount } = JSON.parse(event.body);
         const valorNumerico = parseFloat(value);
 
         const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
@@ -34,15 +32,19 @@ exports.handler = async function(event, context) {
             throw new Error('Configuração de API Key ausente no servidor.');
         }
 
-        // PAYLOAD CORRIGIDO PARA PARCELAMENTO
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: valorNumerico,
-            billingType: "UNDEFINED", // Deixa o cliente escolher (Pix, Boleto, Cartão)
-            chargeType: "DETACHED",   // OBRIGATÓRIO: Cobrança avulsa
+            // Se o site mandar 'PIX', trava no Pix. Se mandar 'CREDIT_CARD', trava no cartão.
+            // Se não mandar nada, usa UNDEFINED (escolha livre).
+            billingType: billingType || "UNDEFINED", 
+            chargeType: "DETACHED",   
             dueDateLimitDays: 3,
-            maxInstallmentCount: 12   // Habilita até 12x (desde que a parcela mínima seja respeitada)
+            // No link de pagamento avulso (DETACHED), o maxInstallmentCount define o limite.
+            // Se o cliente escolheu parcelar no site, nós já calculamos os juros no valor total.
+            // Aqui permitimos que ele selecione as parcelas na interface do Asaas até o limite que escolheu.
+            maxInstallmentCount: installmentCount || 1 
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
@@ -60,7 +62,6 @@ exports.handler = async function(event, context) {
 
         if (!response.ok) {
             console.error('Erro Asaas:', JSON.stringify(data));
-            // Captura a mensagem de erro exata do Asaas
             const errorMsg = data.errors && data.errors[0] ? data.errors[0].description : 'Erro desconhecido na API do Asaas';
             throw new Error(`Asaas recusou: ${errorMsg}`);
         }
