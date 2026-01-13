@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
@@ -141,15 +141,15 @@
                             </div>
                         </label>
 
-                        <!-- CRÉDITO -->
+                        <!-- CRÉDITO (Texto Alterado) -->
                         <label class="cursor-pointer block">
                             <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
                             <div class="border border-gray-300 rounded-lg p-3 flex flex-col hover:border-teal-500 transition">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
-                                    <span class="font-medium">Crédito (Parcelado)</span>
+                                    <span class="font-medium">Crédito à vista ou parcelado</span>
                                 </div>
-                                <!-- Dropdown de Parcelas (Preenchido via JS) -->
+                                <!-- Dropdown de Parcelas -->
                                 <div id="installments-wrapper" class="hidden mt-3 pt-3 border-t border-gray-200">
                                     <label class="text-xs text-gray-500 block mb-1">Selecione as parcelas:</label>
                                     <select id="installments" class="w-full border border-gray-300 rounded p-2 text-sm bg-white" onchange="calculateTotal()">
@@ -191,15 +191,13 @@
             { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
-        // TAXAS DE JUROS (Exemplo: 0.05 = 5%)
-        // Preencha com os valores reais da sua tabela
         const fees = {
             PIX: 0, 
             DEBIT_CARD: 0,
             CREDIT_CARD: {
-                1: 0.00, // 1x (Sem juros ou taxa da tabela)
-                2: 0.04, // 4%
-                3: 0.05, // 5%
+                1: 0.00,
+                2: 0.04,
+                3: 0.05,
                 4: 0.06, 
                 5: 0.07, 
                 6: 0.08  
@@ -310,7 +308,7 @@
                 const rate = fees.CREDIT_CARD[inst] || 0;
                 finalTotal = baseTotal * (1 + rate);
             } else {
-                // Pix ou Débito (Sem juros adicionais aqui, a não ser que queira)
+                // Pix ou Débito (Sem juros adicionais aqui)
                 finalTotal = baseTotal * (1 + fees[method]);
             }
 
@@ -330,8 +328,6 @@
             const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
 
             try {
-                // Envia o valor FINAL calculado para a API
-                // A API cria um link de pagamento genérico com esse valor
                 const response = await fetch('/.netlify/functions/create_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -360,3 +356,5 @@
     </script>
 </body>
 </html>
+```
+```eof
