@@ -1,5 +1,3 @@
-// Usamos fetch nativo (Node 18+)
-
 exports.handler = async function(event, context) {
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -20,31 +18,31 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        // Recebemos o billingType (PIX, CREDIT_CARD, DEBIT_CARD) do frontend
-        const { value, description, billingType, installmentCount } = JSON.parse(event.body);
+        const { value, description } = JSON.parse(event.body);
+        
+        // Garante que o valor é um número válido
         const valorNumerico = parseFloat(value);
+        if (isNaN(valorNumerico) || valorNumerico <= 0) {
+            throw new Error('Valor inválido para pagamento.');
+        }
 
-        const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
+        const ASAAS_URL = '[https://sandbox.asaas.com/api/v3/paymentLinks](https://sandbox.asaas.com/api/v3/paymentLinks)';
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
-            console.error("ERRO: ASAAS_API_KEY não encontrada.");
             throw new Error('Configuração de API Key ausente no servidor.');
         }
 
+        // Payload Simplificado e Robusto
+        // Removemos configurações de parcelamento específicas aqui, pois o valor total já inclui juros calculados no frontend
+        // billingType: "UNDEFINED" permite ao usuário escolher qualquer método na tela do Asaas
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: valorNumerico,
-            // Se o site mandar 'PIX', trava no Pix. Se mandar 'CREDIT_CARD', trava no cartão.
-            // Se não mandar nada, usa UNDEFINED (escolha livre).
-            billingType: billingType || "UNDEFINED", 
-            chargeType: "DETACHED",   
-            dueDateLimitDays: 3,
-            // No link de pagamento avulso (DETACHED), o maxInstallmentCount define o limite.
-            // Se o cliente escolheu parcelar no site, nós já calculamos os juros no valor total.
-            // Aqui permitimos que ele selecione as parcelas na interface do Asaas até o limite que escolheu.
-            maxInstallmentCount: installmentCount || 1 
+            billingType: "UNDEFINED", 
+            chargeType: "DETACHED",
+            dueDateLimitDays: 3
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
@@ -81,5 +79,3 @@ exports.handler = async function(event, context) {
         };
     }
 };
-```
-```eof
