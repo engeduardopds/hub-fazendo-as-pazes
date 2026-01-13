@@ -18,7 +18,7 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        // Recebemos dados do frontend
+        // Recebe os dados do frontend
         const { value, description, billingType, installmentCount } = JSON.parse(event.body);
         
         const valorNumerico = parseFloat(value);
@@ -26,25 +26,29 @@ exports.handler = async function(event, context) {
             throw new Error('Valor inválido para pagamento.');
         }
 
-        const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
+        // URL LIMPA (Sem markdown)
+        const ASAAS_URL = '[https://sandbox.asaas.com/api/v3/paymentLinks](https://sandbox.asaas.com/api/v3/paymentLinks)';
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
             throw new Error('Configuração de API Key ausente no servidor.');
         }
 
-        // Lógica de Parcelas
+        // Lógica:
+        // Se billingType for 'CREDIT_CARD', enviamos para o Asaas.
+        // Se for 'PIX', enviamos 'PIX'.
+        // O maxInstallmentCount é configurado com base no que o usuário escolheu.
+        
         const maxInstallments = installmentCount && parseInt(installmentCount) > 1 ? parseInt(installmentCount) : 1;
 
-        // Payload
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: valorNumerico,
-            billingType: billingType || "UNDEFINED", // PIX, CREDIT_CARD ou UNDEFINED
+            billingType: billingType || "UNDEFINED", 
             chargeType: "DETACHED",
             dueDateLimitDays: 3,
-            maxInstallmentCount: maxInstallments // Define o limite de parcelas no link
+            maxInstallmentCount: maxInstallments
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
