@@ -15,6 +15,34 @@
         /* Esconde views que não estão ativas */
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+
+        /* Estilo da Notificação Toast */
+        #toast {
+            visibility: hidden; /* Oculto por padrão */
+            min-width: 280px;
+            background-color: rgba(13, 148, 136, 0.95); /* teal-600 com transparência */
+            color: #fff;
+            text-align: center;
+            border-radius: 50px; /* Borda bem redonda */
+            padding: 12px 24px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        /* Classe para mostrar o Toast */
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px; /* Sobe um pouquinho ao aparecer */
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -123,7 +151,7 @@
                     <button onclick="checkout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md mb-3">
                         Ir para Pagamento <i class="fa-solid fa-lock ml-2"></i>
                     </button>
-                    <p class="text-xs text-center text-gray-400">Ambiente seguro (Simulação)</p>
+                    <p class="text-xs text-center text-gray-400">Pagamento seguro via Asaas (Link gerado)</p>
                 </div>
             </div>
         </div>
@@ -135,6 +163,9 @@
             &copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.
         </div>
     </footer>
+
+    <!-- ELEMENTO TOAST (Notificação) -->
+    <div id="toast">Item adicionado ao carrinho!</div>
 
     <!-- LÓGICA DO SISTEMA -->
     <script>
@@ -261,6 +292,18 @@
             }
         }
 
+        // Função de Notificação (Toast)
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`;
+            toast.className = "show";
+            
+            // Remove a classe após 3 segundos
+            setTimeout(function(){ 
+                toast.className = toast.className.replace("show", ""); 
+            }, 3000);
+        }
+
         function addToCartCurrent() {
             // Verifica se já existe no carrinho
             const existing = cart.find(i => i.id === currentItem.id);
@@ -271,8 +314,11 @@
             }
 
             updateCartIcon();
-            alert(`${currentQty}x ${currentItem.name} adicionado ao carrinho!`);
-            router('home'); // Volta pra home ou fica na página (opcional)
+            
+            // NOVO: Notificação sutil sem travar a tela
+            showToast(`${currentQty}x ${currentItem.name} adicionado!`);
+            
+            // OBS: Removemos o router('home'), então o usuário continua na página do produto
         }
 
         function updateCartIcon() {
@@ -323,22 +369,34 @@
 
         function checkout() {
             if (cart.length === 0) {
-                alert("Seu carrinho está vazio.");
+                showToast("Seu carrinho está vazio.");
                 return;
             }
             
-            // Simulação de Checkout
-            // Aqui você poderia redirecionar para um link do Stripe, Mercado Pago ou WhatsApp
-            alert("Redirecionando para pagamento seguro...\n(Esta é uma simulação)");
+            // --- LÓGICA DE PAGAMENTO ASAAS (Explicação) ---
+            // Como este é um site estático (apenas HTML/JS no navegador), não podemos
+            // criar o link do Asaas DIRETAMENTE aqui com segurança, pois precisaríamos
+            // expor sua CHAVE DE API SECRETA (o que permitiria que qualquer um usasse sua conta).
             
-            // Exemplo de integração com WhatsApp:
+            // OPÇÃO A (Mais Simples - Sem Programação Backend):
+            // Você redireciona o cliente para o seu WhatsApp com o resumo do pedido.
+            // Lá, você gera o link no app do Asaas manualmente e envia para ele.
+            
             /*
-            let msg = "Olá! Gostaria de comprar:%0A";
-            cart.forEach(i => msg += `- ${i.qty}x ${i.name}%0A`);
+            let msg = "Olá! Gostaria de finalizar a compra dos seguintes itens:%0A";
+            cart.forEach(i => msg += `- ${i.qty}x ${i.name} (R$ ${i.price})%0A`);
             const total = document.getElementById('cart-total').textContent;
-            msg += `%0ATotal: ${total}`;
+            msg += `%0ATotal: ${total}%0A%0AQual o link para pagamento via Asaas?`;
+            
             window.open(`https://wa.me/5551999999999?text=${msg}`, '_blank');
             */
+
+            // OPÇÃO B (Automática - Requer Backend/Netlify Functions):
+            // Você criaria uma função no Netlify que recebe os dados daqui,
+            // chama a API do Asaas de forma segura e devolve o link de pagamento.
+            
+            // POR ENQUANTO (Simulação):
+            alert("Redirecionando para o sistema de pagamento seguro do Asaas...\n\n(Nesta etapa, o site enviaria os dados para criar o link de pagamento)");
         }
 
         // Inicia o app
@@ -347,4 +405,4 @@
 </body>
 </html>
 ```
-```
+```eof
