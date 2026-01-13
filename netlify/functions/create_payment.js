@@ -18,16 +18,15 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        const { value, description } = JSON.parse(event.body);
+        // Recebemos o billingType do frontend (PIX, CREDIT_CARD, etc.)
+        const { value, description, billingType } = JSON.parse(event.body);
         
         const valorNumerico = parseFloat(value);
         if (isNaN(valorNumerico) || valorNumerico <= 0) {
             throw new Error('Valor inválido para pagamento.');
         }
 
-        // CORREÇÃO: URL limpa, sem formatação de markdown
         const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
-        
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
@@ -38,14 +37,17 @@ exports.handler = async function(event, context) {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: valorNumerico,
-            billingType: "UNDEFINED", 
+            // AGORA USAMOS O TIPO ESCOLHIDO NO SITE
+            // Se o site mandar 'PIX', o link abre direto no Pix.
+            // Se mandar 'CREDIT_CARD', abre direto no cartão.
+            billingType: billingType || "UNDEFINED", 
             chargeType: "DETACHED",
-            dueDateLimitDays: 3
+            dueDateLimitDays: 3,
+            maxInstallmentCount: 1 // Como já calculamos os juros no total, deixamos 1x no Asaas para ele cobrar o valor cheio que enviamos.
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
 
-        // Usa o fetch global (Node 18+)
         const response = await fetch(ASAAS_URL, {
             method: 'POST',
             headers: {
