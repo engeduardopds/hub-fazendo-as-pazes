@@ -20,22 +20,20 @@ exports.handler = async function(event, context) {
 
         const { value, description } = JSON.parse(event.body);
         
-        // Garante que o valor é um número válido
         const valorNumerico = parseFloat(value);
         if (isNaN(valorNumerico) || valorNumerico <= 0) {
             throw new Error('Valor inválido para pagamento.');
         }
 
-        const ASAAS_URL = '[https://sandbox.asaas.com/api/v3/paymentLinks](https://sandbox.asaas.com/api/v3/paymentLinks)';
+        // CORREÇÃO: URL limpa, sem formatação de markdown
+        const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
+        
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
             throw new Error('Configuração de API Key ausente no servidor.');
         }
 
-        // Payload Simplificado e Robusto
-        // Removemos configurações de parcelamento específicas aqui, pois o valor total já inclui juros calculados no frontend
-        // billingType: "UNDEFINED" permite ao usuário escolher qualquer método na tela do Asaas
         const payload = {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
@@ -47,6 +45,7 @@ exports.handler = async function(event, context) {
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
 
+        // Usa o fetch global (Node 18+)
         const response = await fetch(ASAAS_URL, {
             method: 'POST',
             headers: {
@@ -79,3 +78,5 @@ exports.handler = async function(event, context) {
         };
     }
 };
+```
+```eof
