@@ -148,10 +148,10 @@
                         <span id="cart-total">R$ 0,00</span>
                     </div>
                     
-                    <button onclick="checkout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md mb-3">
-                        Ir para Pagamento <i class="fa-solid fa-lock ml-2"></i>
+                    <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md mb-3 flex justify-center items-center gap-2">
+                        <span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>
                     </button>
-                    <p class="text-xs text-center text-gray-400">Pagamento seguro via Asaas (Link gerado)</p>
+                    <p class="text-xs text-center text-gray-400">Ambiente seguro via Asaas</p>
                 </div>
             </div>
         </div>
@@ -255,7 +255,6 @@
 
         // --- 6. ABRIR PÁGINA DO PRODUTO ---
         function openProduct(id) {
-            // Encontra o produto no "banco de dados"
             let product = null;
             let category = "";
             
@@ -269,7 +268,6 @@
 
             if (!product) return;
 
-            // Preenche os dados na tela
             currentItem = product;
             currentQty = 1;
             
@@ -280,7 +278,6 @@
             document.getElementById('detail-price').textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
             document.getElementById('detail-qty').textContent = currentQty;
 
-            // Muda a tela
             router('product');
         }
 
@@ -297,28 +294,18 @@
             const toast = document.getElementById("toast");
             toast.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`;
             toast.className = "show";
-            
-            // Remove a classe após 3 segundos
-            setTimeout(function(){ 
-                toast.className = toast.className.replace("show", ""); 
-            }, 3000);
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
         }
 
         function addToCartCurrent() {
-            // Verifica se já existe no carrinho
             const existing = cart.find(i => i.id === currentItem.id);
             if (existing) {
                 existing.qty += currentQty;
             } else {
                 cart.push({ ...currentItem, qty: currentQty });
             }
-
             updateCartIcon();
-            
-            // NOVO: Notificação sutil sem travar a tela
             showToast(`${currentQty}x ${currentItem.name} adicionado!`);
-            
-            // OBS: Removemos o router('home'), então o usuário continua na página do produto
         }
 
         function updateCartIcon() {
@@ -357,8 +344,9 @@
                 });
             }
 
-            document.getElementById('cart-subtotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('cart-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            const totalFormatted = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-subtotal').textContent = totalFormatted;
+            document.getElementById('cart-total').textContent = totalFormatted;
         }
 
         function removeFromCart(index) {
@@ -367,36 +355,50 @@
             updateCartIcon();
         }
 
-        function checkout() {
+        // --- 9. CHECKOUT COM ASAAS (INTEGRAÇÃO REAL) ---
+        async function checkout() {
             if (cart.length === 0) {
                 showToast("Seu carrinho está vazio.");
                 return;
             }
-            
-            // --- LÓGICA DE PAGAMENTO ASAAS (Explicação) ---
-            // Como este é um site estático (apenas HTML/JS no navegador), não podemos
-            // criar o link do Asaas DIRETAMENTE aqui com segurança, pois precisaríamos
-            // expor sua CHAVE DE API SECRETA (o que permitiria que qualquer um usasse sua conta).
-            
-            // OPÇÃO A (Mais Simples - Sem Programação Backend):
-            // Você redireciona o cliente para o seu WhatsApp com o resumo do pedido.
-            // Lá, você gera o link no app do Asaas manualmente e envia para ele.
-            
-            /*
-            let msg = "Olá! Gostaria de finalizar a compra dos seguintes itens:%0A";
-            cart.forEach(i => msg += `- ${i.qty}x ${i.name} (R$ ${i.price})%0A`);
-            const total = document.getElementById('cart-total').textContent;
-            msg += `%0ATotal: ${total}%0A%0AQual o link para pagamento via Asaas?`;
-            
-            window.open(`https://wa.me/5551999999999?text=${msg}`, '_blank');
-            */
 
-            // OPÇÃO B (Automática - Requer Backend/Netlify Functions):
-            // Você criaria uma função no Netlify que recebe os dados daqui,
-            // chama a API do Asaas de forma segura e devolve o link de pagamento.
+            const btn = document.getElementById('btn-checkout');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Gerando Pagamento...`;
+            btn.disabled = true;
+
+            // Calcula o total
+            const totalValue = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
             
-            // POR ENQUANTO (Simulação):
-            alert("Redirecionando para o sistema de pagamento seguro do Asaas...\n\n(Nesta etapa, o site enviaria os dados para criar o link de pagamento)");
+            // Prepara a descrição do pedido
+            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
+
+            try {
+                // Chama a Netlify Function (Backend Seguro)
+                const response = await fetch('/.netlify/functions/create_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        value: totalValue,
+                        description: `Pedido Hub Fazendo as Pazes: ${description}`
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.paymentUrl) {
+                    // Sucesso! Redireciona para o Asaas
+                    window.location.href = data.paymentUrl;
+                } else {
+                    throw new Error(data.error || 'Erro ao criar pagamento');
+                }
+
+            } catch (error) {
+                console.error("Erro no checkout:", error);
+                alert("Ocorreu um erro ao gerar o pagamento. Por favor, tente novamente ou entre em contato.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // Inicia o app
