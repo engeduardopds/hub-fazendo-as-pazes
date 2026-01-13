@@ -78,5 +78,3 @@ exports.handler = async function(event, context) {
         };
     }
 };
-```
-```eof
