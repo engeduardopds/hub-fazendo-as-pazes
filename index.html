@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS -->
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <!-- Tailwind CSS (CDN Seguro) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -53,6 +53,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
+    <!-- Navbar -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
@@ -136,7 +137,7 @@
                             </div>
                         </label>
 
-                        <!-- CRÉDITO (Texto Ajustado) -->
+                        <!-- CRÉDITO -->
                         <label class="cursor-pointer block">
                             <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
                             <div class="border border-gray-300 rounded-lg p-3 flex flex-col hover:border-teal-500 transition">
@@ -186,6 +187,7 @@
             { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
+        // TAXAS DE JUROS (Exemplo: 0.05 = 5%)
         const fees = {
             PIX_OR_DEBIT: 0, 
             CREDIT_CARD: {
@@ -269,8 +271,10 @@
             if (method === 'CREDIT_CARD') {
                 installmentsWrapper.classList.remove('hidden');
                 
+                // Calcula o valor base (sem juros)
                 const baseTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
                 
+                // Reconstrói o <select> com os valores calculados
                 select.innerHTML = '';
                 for (let i = 1; i <= 6; i++) {
                     const rate = fees.CREDIT_CARD[i] || 0;
@@ -301,8 +305,8 @@
                 const rate = fees.CREDIT_CARD[installmentCount] || 0;
                 finalTotal = baseTotal * (1 + rate);
             } else {
-                // Pix ou Débito
-                finalTotal = baseTotal;
+                // Pix ou Débito (Sem juros adicionais aqui)
+                finalTotal = baseTotal * (1 + fees.PIX_OR_DEBIT);
             }
 
             document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
