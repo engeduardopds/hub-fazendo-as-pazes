@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS (Link Limpo) -->
+    <!-- Tailwind CSS -->
     <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <!-- Font Awesome (Link Limpo) -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <!-- Google Fonts (Link Limpo) -->
+    <!-- Google Fonts -->
     <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
     
     <style>
@@ -129,9 +129,9 @@
                     <div class="space-y-3 mb-6">
                         <p class="text-sm text-gray-500 font-semibold mb-2">Forma de pagamento:</p>
                         
-                        <!-- PIX / DÉBITO -->
+                        <!-- PIX -->
                         <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="PIX_OR_DEBIT" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
+                            <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
                             <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
                                 <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
                                 <span class="font-medium">Pix ou Débito (À vista)</span>
@@ -292,21 +292,22 @@
         }
 
         function calculateTotal() {
-            if (cart.length === 0) return { finalTotal: 0, method: 'NONE' };
+            if (cart.length === 0) return { finalTotal: 0, method: 'NONE', installments: 1 };
             const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
             const method = document.querySelector('input[name="payment_method"]:checked').value;
             let finalTotal = baseTotal;
+            let installments = 1;
 
             if (method === 'CREDIT_CARD') {
-                const inst = parseInt(document.getElementById('installments').value) || 1;
-                const rate = fees.CREDIT_CARD[inst] || 0;
+                installments = parseInt(document.getElementById('installments').value) || 1;
+                const rate = fees.CREDIT_CARD[installments] || 0;
                 finalTotal = baseTotal * (1 + rate);
             } else {
                 finalTotal = baseTotal * (1 + fees.PIX_OR_DEBIT);
             }
 
             document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
-            return { finalTotal };
+            return { finalTotal, method, installments };
         }
 
         async function checkout() {
@@ -317,17 +318,25 @@
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...`;
             btn.disabled = true;
 
-            const { finalTotal } = calculateTotal();
-            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
+            const { finalTotal, method, installments } = calculateTotal();
+            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
+
+            // Mapeia o método para API
+            // Agora combinamos Pix e Débito no "UNDEFINED" para o cliente escolher lá se quiser,
+            // mas o texto no site diz "Pix ou Débito".
+            let billingTypeAPI = "UNDEFINED";
+            if (method === "PIX_OR_DEBIT") billingTypeAPI = "UNDEFINED"; 
+            if (method === "CREDIT_CARD") billingTypeAPI = "CREDIT_CARD"; 
 
             try {
-                // Chama a API com o valor final calculado (já com juros)
                 const response = await fetch('/.netlify/functions/create_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         value: finalTotal.toFixed(2), 
-                        description: `Pedido Hub: ${description}`
+                        description: `Pedido Hub: ${description}`,
+                        billingType: billingTypeAPI, 
+                        installmentCount: installments
                     })
                 });
 
