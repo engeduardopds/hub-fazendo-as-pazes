@@ -38,10 +38,10 @@ exports.handler = async function(event, context) {
             name: "Pedido Hub Fazendo as Pazes",
             description: description || "Compra no Hub",
             value: parseFloat(value), // Garante que é número
-            billingType: "UNDEFINED",
-            chargeType: "DETACHED",
-            dueDateLimitDays: 3,
-            maxInstallmentCount: 12
+            billingType: "UNDEFINED", // Permite Pix, Boleto, Cartão
+            // chargeType: "DETACHED", // REMOVIDO: Ao retirar isso, o Asaas libera o parcelamento no cartão!
+            dueDateLimitDays: 3,      // O link vence em 3 dias
+            maxInstallmentCount: 12   // Habilita até 12x
         };
 
         console.log("Enviando payload para Asaas:", JSON.stringify(payload));
@@ -60,7 +60,6 @@ exports.handler = async function(event, context) {
 
         if (!response.ok) {
             console.error('Resposta de Erro do Asaas:', JSON.stringify(data));
-            // Tenta extrair a mensagem de erro específica do Asaas
             const errorMsg = data.errors && data.errors[0] ? data.errors[0].description : 'Erro desconhecido na API do Asaas';
             throw new Error(`Asaas recusou: ${errorMsg}`);
         }
@@ -81,3 +80,5 @@ exports.handler = async function(event, context) {
         };
     }
 };
+```
+```eof
