@@ -19,6 +19,8 @@ exports.handler = async function(event, context) {
         }
 
         // Recebemos dados do frontend
+        // value: Valor total já com juros
+        // installmentCount: Número de parcelas (ex: 6)
         const { value, description, billingType, installmentCount } = JSON.parse(event.body);
         
         const valorNumerico = parseFloat(value);
@@ -26,7 +28,7 @@ exports.handler = async function(event, context) {
             throw new Error('Valor inválido para pagamento.');
         }
 
-        const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
+        const ASAAS_URL = '[https://sandbox.asaas.com/api/v3/paymentLinks](https://sandbox.asaas.com/api/v3/paymentLinks)';
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
@@ -34,8 +36,8 @@ exports.handler = async function(event, context) {
         }
 
         // Lógica de Parcelas:
-        // Se o frontend mandou installmentCount > 1 (ex: 6x), permitimos até esse número no Asaas.
-        // Se não mandou ou é 1, travamos em 1x.
+        // Se o cliente escolheu parcelar, o Asaas precisa saber o "maxInstallmentCount".
+        // Se mandarmos 1, ele força à vista. Se mandarmos 6, ele permite até 6x.
         const maxInstallments = installmentCount && installmentCount > 1 ? parseInt(installmentCount) : 1;
 
         const payload = {
@@ -45,7 +47,7 @@ exports.handler = async function(event, context) {
             billingType: billingType || "UNDEFINED", 
             chargeType: "DETACHED",
             dueDateLimitDays: 3,
-            maxInstallmentCount: maxInstallments // Permite parcelamento se > 1
+            maxInstallmentCount: maxInstallments // Permite o parcelamento escolhido
         };
 
         console.log("Enviando para Asaas:", JSON.stringify(payload));
