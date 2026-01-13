@@ -1,4 +1,5 @@
 exports.handler = async function(event, context) {
+    // Permite acesso de qualquer origem (CORS) para evitar erros de bloqueio
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -14,93 +15,63 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        if (!event.body) { throw new Error('Corpo da requisição vazio.'); }
-
-        const data = JSON.parse(event.body);
-        
-        // Dados do Cliente e Compra
-        const { customer, payment } = data;
-        
-        // Validações básicas
-        if (!customer.cpf || !customer.name) throw new Error('Dados do cliente incompletos.');
-        
-        // Configuração API
-        const API_URL = 'https://sandbox.asaas.com/api/v3';
-        const API_KEY = process.env.ASAAS_API_KEY;
-
-        if (!API_KEY) throw new Error('Chave de API não configurada.');
-
-        const fetchAsaas = async (endpoint, method, body) => {
-            const res = await fetch(`${API_URL}${endpoint}`, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'access_token': API_KEY
-                },
-                body: body ? JSON.stringify(body) : null
-            });
-            const json = await res.json();
-            if (!res.ok) {
-                const errorMsg = json.errors && json.errors[0] ? json.errors[0].description : 'Erro na API';
-                throw new Error(errorMsg);
-            }
-            return json;
-        };
-
-        // 1. Buscar se cliente já existe pelo CPF
-        console.log("Buscando cliente...", customer.cpf);
-        const searchRes = await fetchAsaas(`/customers?cpfCnpj=${customer.cpf}`, 'GET');
-        let customerId = null;
-
-        if (searchRes.data && searchRes.data.length > 0) {
-            // Cliente existe, atualiza dados se necessário
-            customerId = searchRes.data[0].id;
-            console.log("Cliente encontrado:", customerId);
-            // Opcional: Atualizar dados do cliente aqui se desejar
-        } else {
-            // Cliente não existe, cria novo
-            console.log("Criando novo cliente...");
-            const newCustomer = await fetchAsaas('/customers', 'POST', {
-                name: customer.name,
-                cpfCnpj: customer.cpf,
-                email: customer.email,
-                mobilePhone: customer.phone,
-                address: customer.address,
-                addressNumber: customer.addressNumber,
-                complement: customer.complement,
-                province: customer.bairro,
-                postalCode: customer.cep
-            });
-            customerId = newCustomer.id;
+        if (!event.body) {
+            throw new Error('Corpo da requisição vazio.');
         }
 
-        // 2. Criar a Cobrança
-        console.log("Criando cobrança para:", customerId);
+        // Recebemos apenas o essencial: Valor final e Descrição
+        // O valor já vem com juros calculados pelo frontend se for o caso
+        const { value, description } = JSON.parse(event.body);
         
-        const today = new Date();
-        const dueDate = new Date(today);
-        dueDate.setDate(today.getDate() + 2); // Vencimento em 2 dias
-        const dueDateStr = dueDate.toISOString().split('T')[0];
+        const valorNumerico = parseFloat(value);
+        if (isNaN(valorNumerico) || valorNumerico <= 0) {
+            throw new Error('Valor inválido para pagamento.');
+        }
 
-        const paymentPayload = {
-            customer: customerId,
-            billingType: payment.billingType, // PIX, CREDIT_CARD, DEBIT_CARD
-            value: payment.value,
-            dueDate: dueDateStr,
-            description: payment.description,
-            // Se for cartão parcelado, configura as parcelas
-            ...(payment.billingType === 'CREDIT_CARD' && payment.installmentCount > 1 ? {
-                installmentCount: payment.installmentCount,
-                installmentValue: payment.value / payment.installmentCount // Valor total dividido pelas parcelas
-            } : {})
+        const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
+        const API_KEY = process.env.ASAAS_API_KEY;
+
+        if (!API_KEY) {
+            throw new Error('Configuração de API Key ausente no servidor.');
+        }
+
+        // Payload Simplificado e Robusto
+        // billingType: "UNDEFINED" -> Deixa o cliente escolher (Pix, Cartão, Boleto) na tela do Asaas
+        // chargeType: "DETACHED" -> Obrigatório para link de pagamento
+        // maxInstallmentCount: 12 -> Permite que o cliente parcele lá no Asaas se quiser (o valor total já garante o recebimento correto)
+        const payload = {
+            name: "Pedido Hub Fazendo as Pazes",
+            description: description || "Compra no Hub",
+            value: valorNumerico,
+            billingType: "UNDEFINED", 
+            chargeType: "DETACHED",
+            dueDateLimitDays: 3,
+            maxInstallmentCount: 12 
         };
 
-        const paymentRes = await fetchAsaas('/payments', 'POST', paymentPayload);
+        console.log("Enviando para Asaas:", JSON.stringify(payload));
+
+        const response = await fetch(ASAAS_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'access_token': API_KEY
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Erro Asaas:', JSON.stringify(data));
+            const errorMsg = data.errors && data.errors[0] ? data.errors[0].description : 'Erro desconhecido na API do Asaas';
+            throw new Error(`Asaas recusou: ${errorMsg}`);
+        }
 
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ paymentUrl: paymentRes.invoiceUrl })
+            body: JSON.stringify({ paymentUrl: data.url })
         };
 
     } catch (error) {
