@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- CSS (LINKS LIMPOS PARA GARANTIR VISUAL) -->
+    <!-- CSS: Tailwind e FontAwesome (Links Limpos) -->
     <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
     <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
+    <!-- Netlify Identity -->
     <script type="text/javascript" src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)"></script>
     
     <style>
@@ -17,6 +18,7 @@
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
+        /* Toast */
         #toast {
             visibility: hidden;
             min-width: 280px;
@@ -42,6 +44,7 @@
             bottom: 50px;
         }
         
+        /* Radio */
         .payment-radio:checked + div {
             border-color: #0d9488;
             background-color: #f0fdfa;
@@ -50,6 +53,7 @@
             box-shadow: 0 0 0 1px #0d9488;
         }
 
+        /* Spinner */
         .loader {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -66,14 +70,18 @@
     <!-- Header -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
+            <!-- Logo -->
             <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="router('home')">
                 <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">FP</div>
                 <span class="font-bold text-lg tracking-tight">Hub Fazendo as Pazes</span>
             </div>
 
             <div class="flex items-center gap-6">
+                <!-- Login/Conta -->
                 <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4"></div>
-                <div class="relative cursor-pointer hover:text-teal-600 transition" onclick="router('cart')">
+                
+                <!-- Carrinho -->
+                <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
                 </div>
@@ -90,6 +98,7 @@
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Loja Oficial</h1>
                 <p class="text-gray-600">Explore nossos materiais e cursos.</p>
             </div>
+            <!-- Grid de Produtos -->
             <div id="catalog-container" class="space-y-12"></div>
         </div>
 
@@ -110,6 +119,7 @@
                         <div class="mt-auto">
                             <div class="flex items-center justify-between mb-6">
                                 <span id="detail-price" class="text-3xl font-bold text-gray-900">R$ 0,00</span>
+                                <!-- Qty -->
                                 <div class="flex items-center border border-gray-300 rounded-lg">
                                     <button onclick="updateQty(-1)" class="px-3 py-1 hover:bg-gray-100">-</button>
                                     <span id="detail-qty" class="px-3 font-bold">1</span>
@@ -125,7 +135,7 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CHECKOUT -->
+        <!-- VIEW 3: CHECKOUT (DADOS + PAGAMENTO) -->
         <div id="view-cart" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2 font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
@@ -134,18 +144,21 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- COLUNA ESQUERDA -->
+                <!-- Coluna Esquerda -->
                 <div class="lg:col-span-2 space-y-6">
+                    <!-- Resumo -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
                         <div id="cart-items-container" class="space-y-4"></div>
                     </div>
 
+                    <!-- Aviso de Login -->
                     <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
-                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
+                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente.</p>
                         <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
                     </div>
 
+                    <!-- Formulário -->
                     <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
@@ -176,11 +189,11 @@
                     </form>
                 </div>
 
-                <!-- COLUNA DIREITA: PAGAMENTO -->
+                <!-- Coluna Direita: Pagamento -->
                 <div class="h-fit">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
-                        
+
                         <!-- Cupom -->
                         <div class="mb-6">
                             <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Cupom de Desconto</label>
@@ -190,6 +203,7 @@
                             </div>
                         </div>
 
+                        <!-- Opções -->
                         <div class="space-y-3 mb-6">
                             <label class="cursor-pointer block group">
                                 <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
@@ -214,6 +228,7 @@
                             </label>
                         </div>
 
+                        <!-- Totais -->
                         <div class="border-t border-gray-100 pt-4 mb-6">
                             <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
                             <div class="flex justify-between items-baseline text-gray-900"><span class="font-bold text-lg">Total</span><span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span></div>
@@ -269,6 +284,7 @@
     <div id="toast">Item adicionado ao carrinho!</div>
 
     <script>
+        // CONFIGURAÇÕES
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
             { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
@@ -318,7 +334,7 @@
                     msgDataSource.classList.remove('bg-gray-100', 'text-gray-500');
                     msgDataSource.classList.add('bg-green-100', 'text-green-700');
                 }
-                
+
                 if(document.getElementById('acc-email')) {
                     document.getElementById('acc-email').value = currentUser.email;
                     document.getElementById('acc-name').value = meta.full_name || '';
@@ -371,7 +387,8 @@
         function updateCartIcon(){document.getElementById('cart-count').textContent=cart.reduce((a,i)=>a+i.qty,0)}
         function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon()}
         function renderCart(){const c=document.getElementById('cart-items-container');c.innerHTML='';if(cart.length===0){c.innerHTML='<div class="text-center py-10 text-gray-400">Vazio</div>'}else{cart.forEach((i,idx)=>{c.innerHTML+=`<div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg"><div class="flex items-center gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-xs text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-sm text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`});}calculateTotal()}
-        function maskCpfCnpj(i){let v=i.value.replace(/\D/g,"");if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
+        
+        function maskCpfCnpj(i){ let v=i.value.replace(/\D/g,""); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
         function maskPhone(i){i.value=i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15)}
         async function buscarCEP(c){c=c.replace(/\D/g,'');if(c.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${c}/json/`);const d=await r.json();if(!d.erro){document.getElementById('cust-address').value=d.logradouro;document.getElementById('cust-bairro').value=d.bairro;document.getElementById('cust-city').value=d.localidade+' - '+d.uf;document.getElementById('cust-number').focus()}else{alert('CEP não encontrado')}}catch(e){console.error(e)}}
         async function buscarCEPAccount(c){c=c.replace(/\D/g,'');if(c.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${c}/json/`);const d=await r.json();if(!d.erro){document.getElementById('acc-address').value=d.logradouro;document.getElementById('acc-bairro').value=d.bairro;document.getElementById('acc-city').value=d.localidade+' - '+d.uf;document.getElementById('acc-number').focus()}}catch(e){console.error(e)}}
@@ -429,7 +446,7 @@
 
             let billingTypeAPI = 'UNDEFINED';
             if(method==='PIX') billingTypeAPI='PIX';
-            if(method==='DEBIT_CARD') billingTypeAPI='UNDEFINED'; 
+            if(method==='DEBIT_CARD') billingTypeAPI='UNDEFINED'; // Débito não tem API direta
             if(method==='CREDIT_CARD') billingTypeAPI='CREDIT_CARD';
 
             try {
