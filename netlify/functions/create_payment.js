@@ -24,7 +24,8 @@ exports.handler = async function(event, context) {
             throw new Error('Dados do cliente incompletos (CPF e Nome são obrigatórios).');
         }
 
-        const API_URL = '[https://sandbox.asaas.com/api/v3](https://sandbox.asaas.com/api/v3)';
+        // URL CORRIGIDA (Sem formatação Markdown)
+        const API_URL = 'https://sandbox.asaas.com/api/v3';
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) { throw new Error('Configuração de API Key ausente.'); }
