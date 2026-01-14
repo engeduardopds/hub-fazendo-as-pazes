@@ -18,58 +18,92 @@ exports.handler = async function(event, context) {
             throw new Error('Corpo da requisição vazio.');
         }
 
-        // Recebemos dados do frontend
-        const { value, description, billingType, installmentCount } = JSON.parse(event.body);
-        
-        const valorNumerico = parseFloat(value);
-        if (isNaN(valorNumerico) || valorNumerico <= 0) {
-            throw new Error('Valor inválido para pagamento.');
-        }
+        const data = JSON.parse(event.body);
+        const { customer, payment } = data;
 
-        const ASAAS_URL = 'https://sandbox.asaas.com/api/v3/paymentLinks';
+        // Configurações
+        const API_URL = 'https://sandbox.asaas.com/api/v3';
         const API_KEY = process.env.ASAAS_API_KEY;
 
         if (!API_KEY) {
-            throw new Error('Configuração de API Key ausente no servidor.');
+            throw new Error('Chave de API não configurada no servidor.');
         }
 
-        // Lógica de Parcelas
-        const maxInstallments = installmentCount && parseInt(installmentCount) > 1 ? parseInt(installmentCount) : 1;
+        // Função auxiliar para fetch
+        const fetchAsaas = async (endpoint, method, bodyContent) => {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'access_token': API_KEY
+                }
+            };
+            if (bodyContent) options.body = JSON.stringify(bodyContent);
 
-        // Payload
-        const payload = {
-            name: "Pedido Hub Fazendo as Pazes",
-            description: description || "Compra no Hub",
-            value: valorNumerico,
-            billingType: billingType || "UNDEFINED", // PIX, CREDIT_CARD ou UNDEFINED
-            chargeType: "DETACHED",
-            dueDateLimitDays: 3,
-            maxInstallmentCount: maxInstallments // Define o limite de parcelas no link
+            const response = await fetch(`${API_URL}${endpoint}`, options);
+            const json = await response.json();
+
+            if (!response.ok) {
+                const errorMsg = json.errors && json.errors[0] ? json.errors[0].description : 'Erro na API Asaas';
+                console.error(`Erro Asaas [${endpoint}]:`, json);
+                throw new Error(errorMsg);
+            }
+            return json;
         };
 
-        console.log("Enviando para Asaas:", JSON.stringify(payload));
+        // 1. Buscar ou Criar Cliente
+        let customerId = null;
+        // Remove pontuação do CPF para busca
+        const cpfLimpo = customer.cpf.replace(/\D/g, '');
+        
+        console.log(`Buscando cliente CPF: ${cpfLimpo}`);
+        const searchRes = await fetchAsaas(`/customers?cpfCnpj=${cpfLimpo}`, 'GET');
 
-        const response = await fetch(ASAAS_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'access_token': API_KEY
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error('Erro Asaas:', JSON.stringify(data));
-            const errorMsg = data.errors && data.errors[0] ? data.errors[0].description : 'Erro desconhecido na API do Asaas';
-            throw new Error(`Asaas recusou: ${errorMsg}`);
+        if (searchRes.data && searchRes.data.length > 0) {
+            customerId = searchRes.data[0].id;
+            console.log("Cliente encontrado:", customerId);
+        } else {
+            console.log("Criando novo cliente...");
+            const newCustomer = await fetchAsaas('/customers', 'POST', {
+                name: customer.name,
+                cpfCnpj: cpfLimpo,
+                email: customer.email,
+                mobilePhone: customer.phone,
+                address: customer.address,
+                addressNumber: customer.addressNumber,
+                complement: customer.complement,
+                province: customer.bairro,
+                postalCode: customer.cep
+            });
+            customerId = newCustomer.id;
         }
+
+        // 2. Criar a Cobrança
+        const today = new Date();
+        today.setDate(today.getDate() + 2); // Vencimento em 2 dias
+        const dueDate = today.toISOString().split('T')[0];
+
+        const paymentPayload = {
+            customer: customerId,
+            billingType: payment.billingType, // PIX, CREDIT_CARD ou UNDEFINED
+            value: parseFloat(payment.value),
+            dueDate: dueDate,
+            description: payment.description
+        };
+
+        // Se for Crédito e Parcelado (>1), adiciona configuração de parcelas
+        if (payment.billingType === 'CREDIT_CARD' && payment.installmentCount > 1) {
+            paymentPayload.installmentCount = payment.installmentCount;
+            paymentPayload.installmentValue = parseFloat(payment.value) / payment.installmentCount;
+        }
+
+        console.log("Criando cobrança...", JSON.stringify(paymentPayload));
+        const paymentRes = await fetchAsaas('/payments', 'POST', paymentPayload);
 
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ paymentUrl: data.url })
+            body: JSON.stringify({ paymentUrl: paymentRes.invoiceUrl })
         };
 
     } catch (error) {
