@@ -4,217 +4,298 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS -->
+    
+    <!-- CSS Tailwind (CDN Seguro) -->
     <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <!-- Font Awesome -->
+    <!-- Ícones -->
     <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <!-- Google Fonts -->
+    <!-- Fontes -->
     <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
     
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
-
-        /* Toast Notification */
-        #toast {
-            visibility: hidden;
-            min-width: 280px;
-            background-color: rgba(13, 148, 136, 0.95);
-            color: #fff;
-            text-align: center;
-            border-radius: 50px;
-            padding: 12px 24px;
-            position: fixed;
-            z-index: 100;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 14px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
         
+        /* Animação suave entre telas */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Controle de visibilidade das Views (SPA) */
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+        /* Spinner de Carregamento */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Estilo do Radio Selecionado */
         .payment-radio:checked + div {
             border-color: #0d9488;
             background-color: #f0fdfa;
             color: #0f766e;
             font-weight: 600;
+            box-shadow: 0 0 0 1px #0d9488;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
+    <!-- Header -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
+            <!-- Logo Clicável -->
+            <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="router('home')">
                 <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">FP</div>
                 <span class="font-bold text-lg tracking-tight">Hub Fazendo as Pazes</span>
             </div>
-            <div class="relative cursor-pointer hover:text-teal-600 transition" onclick="router('cart')">
+            
+            <!-- Ícone do Carrinho -->
+            <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                 <i class="fa-solid fa-cart-shopping text-xl"></i>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                <!-- Contador de Itens -->
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-6 py-8">
-        
-        <!-- VIEW 1: HOME -->
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow container mx-auto px-6 py-8 max-w-6xl">
+
+        <!-- VIEW 1: HOME (CATÁLOGO EM QUADRADOS) -->
         <div id="view-home" class="view-section active">
             <div class="text-center mb-12">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Loja Oficial</h1>
-                <p class="text-gray-600">Cursos, materiais e ferramentas para sua jornada.</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Loja Oficial</h1>
+                <p class="text-gray-600">Explore nossos materiais e cursos.</p>
             </div>
-            <div id="catalog-container" class="space-y-16"></div>
+            
+            <!-- Grid de Produtos (Injetado via JS) -->
+            <div id="catalog-container" class="space-y-12"></div>
         </div>
 
-        <!-- VIEW 2: PRODUCT -->
+        <!-- VIEW 2: DETALHES DO PRODUTO -->
         <div id="view-product" class="view-section">
-            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
+            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2 font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
             </button>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2">
-                    <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-8">
-                        <span id="detail-icon" class="text-9xl text-gray-300">📦</span>
+                    <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-10 text-9xl">
+                        <span id="detail-icon">📦</span>
                     </div>
                     <div class="p-8 md:p-12 flex flex-col justify-center">
-                        <span id="detail-category" class="text-teal-600 font-bold text-sm uppercase tracking-wide mb-2">Categoria</span>
-                        <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Item</h2>
-                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição.</p>
-                        <div class="text-2xl font-bold text-gray-900 mb-8" id="detail-price">R$ 0,00</div>
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="flex items-center border border-gray-300 rounded-lg">
-                                <button onclick="updateQty(-1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">-</button>
-                                <span id="detail-qty" class="px-4 font-bold">1</span>
-                                <button onclick="updateQty(1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">+</button>
+                        <span id="detail-category" class="text-teal-600 font-bold text-xs uppercase tracking-wider mb-2">Categoria</span>
+                        <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Produto</h2>
+                        <p id="detail-desc" class="text-gray-600 mb-8 leading-relaxed">Descrição detalhada...</p>
+                        
+                        <div class="mt-auto">
+                            <div class="flex items-center justify-between mb-6">
+                                <span id="detail-price" class="text-3xl font-bold text-gray-900">R$ 0,00</span>
+                                <!-- Seletor de Quantidade -->
+                                <div class="flex items-center border border-gray-300 rounded-lg">
+                                    <button onclick="updateQty(-1)" class="px-3 py-1 hover:bg-gray-100">-</button>
+                                    <span id="detail-qty" class="px-3 font-bold">1</span>
+                                    <button onclick="updateQty(1)" class="px-3 py-1 hover:bg-gray-100">+</button>
+                                </div>
                             </div>
-                            <span class="text-sm text-gray-500">Unidades</span>
+                            <button onclick="addToCartCurrent()" class="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition shadow-lg flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
+                            </button>
                         </div>
-                        <button onclick="addToCartCurrent()" class="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition transform active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 3: CART / CHECKOUT -->
+        <!-- VIEW 3: CHECKOUT (DADOS + PAGAMENTO) -->
         <div id="view-cart" class="view-section">
-            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
+            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2 font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
             </button>
-            <h2 class="text-2xl font-bold mb-6">Seu Carrinho</h2>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Finalizar Compra</h2>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Itens -->
-                <div class="lg:col-span-2 space-y-4" id="cart-items-container">
-                    <div class="text-center py-10 bg-white rounded-lg border border-gray-200"><p class="text-gray-500">Seu carrinho está vazio.</p></div>
+                
+                <!-- Coluna Esquerda: Carrinho e Dados -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Resumo dos Itens -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">Seu Pedido</h3>
+                        <div id="cart-items-container" class="space-y-4">
+                            <!-- Itens do carrinho -->
+                        </div>
+                    </div>
+
+                    <!-- Formulário de Dados do Cliente -->
+                    <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                        <h3 class="font-bold text-lg mb-2 text-teal-800">Seus Dados</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                                <input type="text" id="cust-name" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                                <input type="text" id="cust-cpf" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" placeholder="000.000.000-00" required oninput="maskCPF(this)">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                                <input type="email" id="cust-email" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Celular</label>
+                                <input type="tel" id="cust-phone" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" placeholder="(11) 99999-9999" required oninput="maskPhone(this)">
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-100 pt-4 mt-2">
+                            <h4 class="font-bold text-sm text-gray-700 mb-3">Endereço</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+                                    <input type="text" id="cust-cep" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" placeholder="00000-000" required onblur="buscarCEP(this.value)">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Rua</label>
+                                    <input type="text" id="cust-address" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500 bg-gray-50" required>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Número</label>
+                                    <input type="text" id="cust-number" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
+                                    <input type="text" id="cust-comp" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
+                                    <input type="text" id="cust-bairro" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500 bg-gray-50" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Resumo e Pagamento -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
-                    <h3 class="font-bold text-lg mb-4">Pagamento</h3>
-                    
-                    <div class="space-y-3 mb-6">
-                        <p class="text-sm text-gray-500 font-semibold mb-2">Forma de pagamento:</p>
+                <!-- Coluna Direita: Pagamento -->
+                <div class="h-fit">
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
+
+                        <!-- Cupom -->
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Cupom de Desconto</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="coupon-code" class="w-full px-3 py-2 text-sm border rounded focus:ring-teal-500" placeholder="Código">
+                                <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded text-sm font-medium transition">Aplicar</button>
+                            </div>
+                        </div>
+
+                        <!-- Opções de Pagamento -->
+                        <div class="space-y-3 mb-6">
+                            <!-- Pix -->
+                            <label class="cursor-pointer block group">
+                                <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
+                                <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
+                                    <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
+                                    <span class="font-medium text-sm text-gray-700">Pix (À vista)</span>
+                                </div>
+                            </label>
+                            
+                            <!-- Débito -->
+                            <label class="cursor-pointer block group">
+                                <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
+                                <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
+                                    <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i>
+                                    <span class="font-medium text-sm text-gray-700">Débito (À vista)</span>
+                                </div>
+                            </label>
+
+                            <!-- Crédito -->
+                            <label class="cursor-pointer block group">
+                                <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
+                                <div class="border border-gray-200 rounded-lg p-3 flex flex-col transition bg-white group-hover:border-teal-300">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
+                                        <span class="font-medium text-sm text-gray-700">Crédito (à vista ou parcelado)</span>
+                                    </div>
+                                    <!-- Parcelas -->
+                                    <div id="installments-wrapper" class="hidden mt-3 pl-8">
+                                        <select id="installments" class="w-full border border-gray-300 rounded text-sm py-1.5 focus:ring-teal-500" onchange="calculateTotal()">
+                                            <!-- Opções JS -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Totais -->
+                        <div class="border-t border-gray-100 pt-4 mb-6">
+                            <div class="flex justify-between mb-2 text-sm text-gray-500">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-baseline text-gray-900">
+                                <span class="font-bold text-lg">Total</span>
+                                <span id="cart-total" class="font-bold text-2xl">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-lg transition shadow-md flex justify-center items-center gap-2">
+                            <span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>
+                        </button>
                         
-                        <!-- PIX -->
-                        <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
-                            <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
-                                <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
-                                <span class="font-medium">Pix</span>
-                            </div>
-                        </label>
-
-                        <!-- DÉBITO -->
-                        <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
-                            <div class="border border-gray-300 rounded-lg p-3 flex items-center gap-3 hover:border-teal-500 transition">
-                                <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i>
-                                <span class="font-medium">Débito</span>
-                            </div>
-                        </label>
-
-                        <!-- CRÉDITO -->
-                        <label class="cursor-pointer block">
-                            <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
-                            <div class="border border-gray-300 rounded-lg p-3 flex flex-col hover:border-teal-500 transition">
-                                <div class="flex items-center gap-3">
-                                    <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
-                                    <span class="font-medium">Crédito (à vista ou parcelado)</span>
-                                </div>
-                                <!-- Dropdown de Parcelas -->
-                                <div id="installments-wrapper" class="hidden mt-3 pt-3 border-t border-gray-200">
-                                    <label class="text-xs text-gray-500 block mb-1">Parcelamento:</label>
-                                    <select id="installments" class="w-full border border-gray-300 rounded p-2 text-sm bg-white focus:ring-teal-500" onchange="calculateTotal()">
-                                        <!-- Opções injetadas via JS -->
-                                    </select>
-                                </div>
-                            </div>
-                        </label>
+                        <p class="text-center text-xs text-gray-400 mt-3">Ambiente seguro Asaas</p>
                     </div>
-
-                    <!-- Totais -->
-                    <div class="border-t pt-4">
-                        <div class="flex justify-between mb-2 text-gray-600">
-                            <span>Subtotal</span>
-                            <span id="cart-subtotal">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between mb-6 text-xl font-bold text-gray-900 border-t pt-4">
-                            <span>Total</span>
-                            <span id="cart-total">R$ 0,00</span>
-                        </div>
-                    </div>
-                    
-                    <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md mb-3 flex justify-center items-center gap-2">
-                        <span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>
-                    </button>
-                    <p class="text-xs text-center text-gray-400">Ambiente seguro via Asaas</p>
                 </div>
             </div>
         </div>
+
     </main>
 
-    <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
-        <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.</div>
-    </footer>
-
-    <div id="toast">Item adicionado ao carrinho!</div>
-
+    <!-- Scripts -->
     <script>
-        // --- DADOS E TAXAS ---
+        // --- 1. BANCO DE DADOS ---
         const db = [
-            { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
-            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
-            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
+            {
+                title: "Seção 1: Cursos Online",
+                items: [
+                    { id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Curso completo sobre TDAH." },
+                    { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso sobre Ansiedade." }
+                ]
+            },
+            {
+                title: "Seção 2: Materiais Digitais",
+                items: [
+                    { id: 201, name: "Item 1 (E-book)", price: 29.90, icon: "📚", desc: "E-book prático." }
+                ]
+            },
+            {
+                title: "Seção 3: Impressões 3D",
+                items: [
+                    { id: 301, name: "Item 1 (Fidget)", price: 45.00, icon: "🎲", desc: "Brinquedo sensorial." }
+                ]
+            }
         ];
 
-        // TAXAS DE JUROS (PREENCHA COM SEUS VALORES)
+        // --- 2. TAXAS ---
         const fees = {
             PIX: 0, 
             DEBIT_CARD: 0,
-            CREDIT_CARD: {
-                1: 0.00,
-                2: 0.04,
-                3: 0.05,
-                4: 0.06, 
-                5: 0.07, 
-                6: 0.08  
-            }
+            CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 }
         };
 
+        // Estado
         let cart = [];
         let currentItem = null;
         let currentQty = 1;
@@ -224,59 +305,116 @@
         function router(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
-            window.scrollTo(0, 0);
-            if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
+            window.scrollTo(0,0);
+            if(viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
         }
 
         function renderCatalog() {
             const container = document.getElementById('catalog-container');
             container.innerHTML = '';
+            
             db.forEach(section => {
                 let itemsHtml = '';
                 section.items.forEach(item => {
-                    itemsHtml += `<div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">${item.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1">${item.name}</h3><p class="text-teal-600 font-semibold">R$ ${item.price.toFixed(2).replace('.', ',')}</p></div>`;
+                    itemsHtml += `
+                        <div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-5 flex flex-col group h-full">
+                            <div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition duration-300">
+                                ${item.icon}
+                            </div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight">${item.name}</h3>
+                            <div class="mt-auto pt-4 flex justify-between items-center">
+                                <span class="font-bold text-teal-700">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                                <span class="text-xs text-gray-400 font-medium group-hover:text-teal-600">Ver detalhes →</span>
+                            </div>
+                        </div>
+                    `;
                 });
-                container.innerHTML += `<div><h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${section.title}</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">${itemsHtml}</div></div>`;
+
+                container.innerHTML += `
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="h-8 w-1 bg-teal-500 rounded-full"></div>
+                            <h2 class="text-2xl font-bold text-gray-800">${section.title}</h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
             });
         }
 
         function openProduct(id) {
             let product = null, category = "";
-            db.forEach(section => { const found = section.items.find(i => i.id === id); if (found) { product = found; category = section.title; } });
+            db.forEach(section => {
+                const found = section.items.find(i => i.id === id);
+                if (found) { product = found; category = section.title; }
+            });
+
             if (!product) return;
             currentItem = product; currentQty = 1;
+            
             document.getElementById('detail-icon').textContent = product.icon;
             document.getElementById('detail-category').textContent = category;
             document.getElementById('detail-title').textContent = product.name;
             document.getElementById('detail-desc').textContent = product.desc;
             document.getElementById('detail-price').textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
             document.getElementById('detail-qty').textContent = currentQty;
+
             router('product');
         }
 
-        function updateQty(amount) { if (currentQty + amount >= 1) { currentQty += amount; document.getElementById('detail-qty').textContent = currentQty; } }
-        function showToast(message) { const t = document.getElementById("toast"); t.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`; t.className = "show"; setTimeout(() => t.className = "", 3000); }
+        function updateQty(n) { if (currentQty + n >= 1) { currentQty += n; document.getElementById('detail-qty').textContent = currentQty; } }
         
         function addToCartCurrent() {
-            const existing = cart.find(i => i.id === currentItem.id);
-            if (existing) existing.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
-            updateCartIcon(); showToast(`${currentQty}x ${currentItem.name} adicionado!`);
+            const ex = cart.find(i => i.id === currentItem.id);
+            if (ex) ex.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
+            updateCartIcon();
+            alert("Adicionado ao carrinho!");
         }
-        function updateCartIcon() { document.getElementById('cart-count').textContent = cart.reduce((acc, item) => acc + item.qty, 0); }
-        function removeFromCart(index) { cart.splice(index, 1); renderCart(); updateCartIcon(); }
+
+        function updateCartIcon() {
+            const count = cart.reduce((acc, i) => acc + i.qty, 0);
+            const el = document.getElementById('cart-count');
+            el.textContent = count;
+            if (count > 0) el.classList.remove('hidden'); else el.classList.add('hidden');
+        }
+
+        function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); updateCartIcon(); }
 
         function renderCart() {
-            const container = document.getElementById('cart-items-container');
-            container.innerHTML = '';
-            if (cart.length === 0) { container.innerHTML = '<div class="text-center py-10 bg-white rounded-lg border border-gray-200"><p class="text-gray-500">Seu carrinho está vazio.</p></div>'; }
-            else {
-                cart.forEach((item, index) => {
-                    container.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div><div><h4 class="font-bold text-gray-900">${item.name}</h4><p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p></div></div><div class="flex items-center gap-4"><span class="font-bold text-teal-700">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span><button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`;
-                });
-            }
+            const c = document.getElementById('cart-items-container'); c.innerHTML = '';
+            if (cart.length === 0) { c.innerHTML = '<div class="text-center py-10 text-gray-400">Carrinho vazio</div>'; return; }
+            
+            cart.forEach((i, idx) => {
+                c.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-center gap-4">
+                            <div class="text-2xl">${i.icon}</div>
+                            <div>
+                                <h4 class="font-bold text-sm">${i.name}</h4>
+                                <p class="text-xs text-gray-500">R$ ${i.price.toFixed(2).replace('.', ',')} x ${i.qty}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-sm text-teal-700">R$ ${(i.price * i.qty).toFixed(2).replace('.', ',')}</span>
+                            <button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            calculateTotal();
         }
 
-        // --- LÓGICA DE PAGAMENTO E UI ---
+        // --- MÁSCARAS ---
+        function maskCPF(i){ i.value = i.value.replace(/\D/g,"").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2").substring(0,14); }
+        function maskPhone(i){ i.value = i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15); }
+        async function buscarCEP(cep) {
+            cep = cep.replace(/\D/g, ''); if (cep.length !== 8) return;
+            try { const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const d = await r.json(); if (!d.erro) { document.getElementById('cust-address').value = d.logradouro; document.getElementById('cust-bairro').value = d.bairro; document.getElementById('cust-number').focus(); } } catch (e) { console.error(e); }
+        }
+
+        // --- PAGAMENTO UI ---
         function updatePaymentUI() {
             const method = document.querySelector('input[name="payment_method"]:checked').value;
             const wrap = document.getElementById('installments-wrapper');
@@ -284,82 +422,97 @@
             
             if (method === 'CREDIT_CARD') {
                 wrap.classList.remove('hidden');
-                const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+                const base = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
                 select.innerHTML = '';
                 for (let i = 1; i <= 6; i++) {
                     const rate = fees.CREDIT_CARD[i] || 0;
-                    const total = baseTotal * (1 + rate);
+                    const total = base * (1 + rate);
                     const parc = total / i;
                     const opt = document.createElement('option');
                     opt.value = i;
                     opt.text = `${i}x de R$ ${parc.toFixed(2).replace('.', ',')} (Total: R$ ${total.toFixed(2).replace('.', ',')})`;
                     select.appendChild(opt);
                 }
-            } else {
-                wrap.classList.add('hidden');
-            }
+            } else { wrap.classList.add('hidden'); }
             calculateTotal();
         }
 
         function calculateTotal() {
             if (cart.length === 0) return { finalTotal: 0, method: 'NONE', installments: 1 };
-            const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+            const base = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
             const method = document.querySelector('input[name="payment_method"]:checked').value;
-            let finalTotal = baseTotal;
-            let installments = 1;
-
+            let final = base;
+            let inst = 1;
+            
             if (method === 'CREDIT_CARD') {
-                installments = parseInt(document.getElementById('installments').value) || 1;
-                const rate = fees.CREDIT_CARD[installments] || 0;
-                finalTotal = baseTotal * (1 + rate);
-            } else {
-                finalTotal = baseTotal * (1 + fees.PIX);
-            }
+                inst = parseInt(document.getElementById('installments').value) || 1;
+                final = base * (1 + (fees.CREDIT_CARD[inst] || 0));
+            } else { final = base * (1 + fees.PIX); }
 
-            document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
-            return { finalTotal, method, installments };
+            document.getElementById('cart-subtotal').textContent = `R$ ${base.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-total').textContent = `R$ ${final.toFixed(2).replace('.', ',')}`;
+            return { finalTotal: final, method, installments: inst };
         }
 
+        // --- CHECKOUT ---
         async function checkout() {
-            if (cart.length === 0) { showToast("Carrinho vazio!"); return; }
+            const form = document.getElementById('customer-form');
+            if (!form.checkValidity()) { alert("Por favor, preencha todos os seus dados."); return; }
+            if (cart.length === 0) return;
 
             const btn = document.getElementById('btn-checkout');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...`;
+            const txt = btn.innerHTML;
+            btn.innerHTML = `<span class="loader"></span> Processando...`;
             btn.disabled = true;
 
             const { finalTotal, method, installments } = calculateTotal();
-            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
+            const desc = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
 
-            // Mapeia o método interno para o billingType da API Asaas
-            let billingTypeAPI = "UNDEFINED";
-            if (method === "PIX_OR_DEBIT") billingTypeAPI = "UNDEFINED"; // Deixa Pix/Boleto/Débito livre
-            if (method === "CREDIT_CARD") billingTypeAPI = "CREDIT_CARD"; // Força cartão
+            // Dados do Cliente
+            const customer = {
+                name: document.getElementById('cust-name').value,
+                cpf: document.getElementById('cust-cpf').value.replace(/\D/g, ''),
+                email: document.getElementById('cust-email').value,
+                phone: document.getElementById('cust-phone').value.replace(/\D/g, ''),
+                cep: document.getElementById('cust-cep').value.replace(/\D/g, ''),
+                address: document.getElementById('cust-address').value,
+                addressNumber: document.getElementById('cust-number').value,
+                complement: document.getElementById('cust-comp').value,
+                bairro: document.getElementById('cust-bairro').value
+            };
+
+            // Mapping para API
+            let billingTypeAPI = 'UNDEFINED';
+            if (method === 'PIX') billingTypeAPI = 'PIX';
+            if (method === 'DEBIT_CARD') billingTypeAPI = 'DEBIT_CARD'; // Tenta mandar direto ou UNDEFINED
+            if (method === 'CREDIT_CARD') billingTypeAPI = 'CREDIT_CARD';
 
             try {
-                // Envia para a API com os novos parâmetros de parcelamento
-                const response = await fetch('/.netlify/functions/create_payment', {
+                const res = await fetch('/.netlify/functions/create_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        value: finalTotal.toFixed(2), 
-                        description: `Pedido Hub: ${description}`,
-                        billingType: billingTypeAPI, 
-                        installmentCount: installments
+                        customer,
+                        payment: {
+                            value: finalTotal.toFixed(2),
+                            description: `Hub: ${desc}`,
+                            billingType: billingTypeAPI,
+                            installmentCount: installments
+                        }
                     })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
 
-                if (response.ok && data.paymentUrl) {
+                if (res.ok && data.paymentUrl) {
                     window.location.href = data.paymentUrl;
                 } else {
-                    throw new Error(data.error || 'Erro ao criar pagamento');
+                    throw new Error(data.error || 'Erro na criação do pagamento.');
                 }
-            } catch (error) {
-                console.error("Erro checkout:", error);
-                alert("Erro ao conectar: " + error.message);
-                btn.innerHTML = originalText;
+            } catch (e) {
+                console.error(e);
+                alert("Erro: " + e.message);
+                btn.innerHTML = txt;
                 btn.disabled = false;
             }
         }
