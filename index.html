@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
-    <script type="text/javascript" src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)"></script>
+    <!-- LINKS LIMPOS (SEM COLCHETES) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -62,6 +63,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
+    <!-- Navbar -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
@@ -70,10 +72,7 @@
             </div>
 
             <div class="flex items-center gap-6">
-                <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4">
-                    <!-- Botões injetados via JS -->
-                </div>
-
+                <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4"></div>
                 <div class="relative cursor-pointer hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -106,7 +105,7 @@
                     <div class="p-8 md:p-12 flex flex-col justify-center">
                         <span id="detail-category" class="text-teal-600 font-bold text-sm uppercase tracking-wide mb-2">Categoria</span>
                         <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Item</h2>
-                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição.</p>
+                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição detalhada do item vai aqui.</p>
                         <div class="text-2xl font-bold text-gray-900 mb-8" id="detail-price">R$ 0,00</div>
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex items-center border border-gray-300 rounded-lg">
@@ -132,20 +131,17 @@
             <h2 class="text-2xl font-bold mb-6">Finalizar Compra</h2>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Coluna Esquerda -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
                         <div id="cart-items-container" class="space-y-4"></div>
                     </div>
 
-                    <!-- Mensagem para Login -->
                     <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
                         <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
                         <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
                     </div>
 
-                    <!-- Formulário de Cliente -->
                     <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
@@ -153,56 +149,26 @@
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label>
-                                <input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label>
-                                <input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)">
-                            </div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label><input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label><input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label>
-                                <input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label>
-                                <input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)">
-                            </div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
                         </div>
 
                         <div class="border-t border-gray-100 pt-4 mt-2">
                             <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label>
-                                    <input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label>
-                                    <input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required>
-                                </div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label><input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)"></div>
+                                <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label><input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label>
-                                    <input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label>
-                                    <input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label>
-                                    <input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required>
-                                </div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label>
-                                <input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
-                            </div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
                         </div>
                     </form>
                 </div>
@@ -210,9 +176,8 @@
                 <!-- Coluna Direita: Pagamento -->
                 <div class="h-fit">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-24">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">Resumo</h3>
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
                         
-                        <!-- Opções Pagamento -->
                         <div class="space-y-3 mb-6">
                             <label class="cursor-pointer block group">
                                 <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
@@ -237,7 +202,6 @@
                             </label>
                         </div>
 
-                        <!-- Totais -->
                         <div class="border-t border-gray-100 pt-4 mb-6">
                             <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
                             <div class="flex justify-between items-baseline text-gray-900"><span class="font-bold text-lg">Total</span><span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span></div>
@@ -252,7 +216,7 @@
             </div>
         </div>
 
-        <!-- VIEW 4: MINHA CONTA (NOVO) -->
+        <!-- VIEW 4: MINHA CONTA -->
         <div id="view-account" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
@@ -260,29 +224,15 @@
             <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Meus Dados</h2>
                 <p class="text-gray-600 mb-6 text-sm">Estes dados serão usados automaticamente nas suas compras.</p>
-                
                 <form id="account-form" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Nome Completo</label>
-                            <input type="text" id="acc-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">CPF/CNPJ</label>
-                            <input type="text" id="acc-cpf" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskCpfCnpj(this)">
-                        </div>
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">Nome Completo</label><input type="text" id="acc-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">CPF/CNPJ</label><input type="text" id="acc-cpf" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskCpfCnpj(this)"></div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">E-mail (Login)</label>
-                            <input type="email" id="acc-email" class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" readonly>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Celular</label>
-                            <input type="tel" id="acc-phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskPhone(this)">
-                        </div>
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">E-mail</label><input type="email" id="acc-email" class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" readonly></div>
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">Celular</label><input type="tel" id="acc-phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskPhone(this)"></div>
                     </div>
-                    
                     <div class="border-t pt-4">
                         <h4 class="font-bold text-sm text-gray-800 mb-3">Endereço</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
@@ -296,14 +246,10 @@
                         </div>
                         <div><label class="block text-xs font-semibold text-gray-500 mb-1">Complemento</label><input type="text" id="acc-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
                     </div>
-
-                    <button type="button" onclick="saveAccountData()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition shadow-md mt-4">
-                        Salvar Dados
-                    </button>
+                    <button type="button" onclick="saveAccountData()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition shadow-md mt-4">Salvar Dados</button>
                 </form>
             </div>
         </div>
-
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
@@ -312,9 +258,7 @@
 
     <div id="toast">Item adicionado ao carrinho!</div>
 
-    <!-- LÓGICA DO SISTEMA -->
     <script>
-        // CONFIGURAÇÕES
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição do curso." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso sobre ansiedade." }] },
             { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia prático." }] },
@@ -355,7 +299,6 @@
                 if(formCustomer) formCustomer.classList.remove('hidden');
                 if(btnCheckout) btnCheckout.disabled = false;
                 
-                // Preenche formulário de checkout com metadados
                 const meta = currentUser.user_metadata || {};
                 if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
                 document.getElementById('cust-email').value = currentUser.email;
@@ -374,7 +317,6 @@
                     msgDataSource.classList.add('bg-green-100', 'text-green-700');
                 }
 
-                // Preenche formulário de Minha Conta
                 if(document.getElementById('acc-email')) {
                     document.getElementById('acc-email').value = currentUser.email;
                     document.getElementById('acc-name').value = meta.full_name || '';
@@ -396,7 +338,6 @@
             }
         }
 
-        // --- SALVAR DADOS DA CONTA ---
         function saveAccountData() {
             if (!currentUser) return;
             const btn = document.querySelector('#account-form button');
@@ -439,7 +380,6 @@
             if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
         }
 
-        // ... (RenderCatalog, OpenProduct, UpdateQty, AddToCart, RemoveFromCart IGUAIS AO ANTERIOR) ...
         function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1">${i.name}</h3><p class="text-teal-600 font-semibold">R$ ${i.price.toFixed(2).replace('.', ',')}</p></div>`});c.innerHTML+=`<div><h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${s.title}</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">${h}</div></div>`})}
         function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
         function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
@@ -449,10 +389,8 @@
         function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon()}
         function renderCart(){const c=document.getElementById('cart-items-container');c.innerHTML='';if(cart.length===0){c.innerHTML='<div class="text-center py-10 text-gray-400">Vazio</div>'}else{cart.forEach((i,idx)=>{c.innerHTML+=`<div class="flex justify-between bg-white p-4 rounded border"><div class="flex gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold">${i.name}</h4><p class="text-sm text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400"><i class="fa-solid fa-trash"></i></button></div></div>`});calculateTotal()}}
 
-        // --- MÁSCARAS E CEP ---
         function maskCpfCnpj(i){ let v=i.value.replace(/\D/g,""); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
         function maskPhone(i){i.value=i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15)}
-        
         async function buscarCEP(cep) { cep=cep.replace(/\D/g,'');if(cep.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const d=await r.json();if(!d.erro){document.getElementById('cust-address').value=d.logradouro;document.getElementById('cust-bairro').value=d.bairro;document.getElementById('cust-city').value=d.localidade+' - '+d.uf;document.getElementById('cust-number').focus()}else{alert('CEP não encontrado')}}catch(e){console.error(e)}}
         async function buscarCEPAccount(cep) { cep=cep.replace(/\D/g,'');if(cep.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const d=await r.json();if(!d.erro){document.getElementById('acc-address').value=d.logradouro;document.getElementById('acc-bairro').value=d.bairro;document.getElementById('acc-city').value=d.localidade+' - '+d.uf;document.getElementById('acc-number').focus()}}catch(e){console.error(e)}}
 
@@ -509,6 +447,7 @@
 
             let billingTypeAPI = 'UNDEFINED';
             if(method==='PIX') billingTypeAPI='PIX';
+            if(method==='DEBIT_CARD') billingTypeAPI='UNDEFINED'; // Débito não tem API direta, deixa o cliente escolher no Asaas
             if(method==='CREDIT_CARD') billingTypeAPI='CREDIT_CARD';
 
             try {
@@ -529,4 +468,4 @@
 </body>
 </html>
 ```
-```
+```eof
