@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Netlify Identity -->
-    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
+    <script type="text/javascript" src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)"></script>
     
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -66,22 +62,18 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            <!-- Logo -->
             <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
                 <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">FP</div>
                 <span class="font-bold text-lg tracking-tight">Hub Fazendo as Pazes</span>
             </div>
 
             <div class="flex items-center gap-6">
-                <!-- Área de Login -->
-                <div id="auth-buttons" class="text-sm font-medium">
+                <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4">
                     <!-- Botões injetados via JS -->
                 </div>
 
-                <!-- Carrinho -->
                 <div class="relative cursor-pointer hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -92,7 +84,7 @@
 
     <main class="flex-grow container mx-auto px-6 py-8">
         
-        <!-- VIEW 1: HOME (CATÁLOGO) -->
+        <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Loja Oficial</h1>
@@ -101,7 +93,7 @@
             <div id="catalog-container" class="space-y-16"></div>
         </div>
 
-        <!-- VIEW 2: DETALHES -->
+        <!-- VIEW 2: PRODUTO -->
         <div id="view-product" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
@@ -132,7 +124,7 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CHECKOUT (CADASTRO COMPLETO) -->
+        <!-- VIEW 3: CHECKOUT -->
         <div id="view-cart" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
@@ -140,121 +132,106 @@
             <h2 class="text-2xl font-bold mb-6">Finalizar Compra</h2>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <!-- DADOS DO CLIENTE (CADASTRO) -->
+                <!-- Coluna Esquerda -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
                         <div id="cart-items-container" class="space-y-4"></div>
                     </div>
 
-                    <!-- Formulário Completo -->
+                    <!-- Mensagem para Login -->
+                    <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
+                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
+                        <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
+                    </div>
+
+                    <!-- Formulário de Cliente -->
                     <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-lg text-teal-800">Dados do Cadastro</h3>
-                            <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded border border-teal-100">Seguro</span>
+                            <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
+                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded" id="data-source-msg">Preenchimento Manual</span>
                         </div>
                         
-                        <!-- Nome e CPF -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label>
-                                <input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" required>
+                                <input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label>
-                                <input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)">
+                                <input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)">
                             </div>
                         </div>
-
-                        <!-- Email e Celular -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label>
-                                <input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" required>
+                                <input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular (com DDD)</label>
-                                <input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" placeholder="(11) 99999-9999" required oninput="maskPhone(this)">
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label>
+                                <input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)">
                             </div>
                         </div>
 
-                        <!-- Endereço -->
                         <div class="border-t border-gray-100 pt-4 mt-2">
                             <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label>
-                                    <input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" placeholder="00000-000" required onblur="buscarCEP(this.value)">
+                                    <input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua / Logradouro</label>
-                                    <input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label>
+                                    <input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required>
                                 </div>
                             </div>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label>
-                                    <input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                    <input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label>
-                                    <input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                    <input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label>
-                                    <input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                    <input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required>
                                 </div>
                             </div>
-                            
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento (Opcional)</label>
-                                <input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition" placeholder="Apto, Bloco, etc.">
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label>
+                                <input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
                             </div>
                         </div>
                     </form>
                 </div>
 
-                <!-- COLUNA DIREITA: PAGAMENTO -->
+                <!-- Coluna Direita: Pagamento -->
                 <div class="h-fit">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-24">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">Resumo e Pagamento</h3>
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">Resumo</h3>
                         
-                        <!-- Opções de Pagamento -->
+                        <!-- Opções Pagamento -->
                         <div class="space-y-3 mb-6">
-                            <!-- Pix -->
                             <label class="cursor-pointer block group">
                                 <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
                                 <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
-                                    <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
-                                    <span class="font-medium text-sm text-gray-700">Pix (À vista)</span>
+                                    <i class="fa-brands fa-pix text-teal-600 text-xl"></i><span class="font-medium text-sm text-gray-700">Pix (À vista)</span>
                                 </div>
                             </label>
-                            
-                            <!-- Débito -->
                             <label class="cursor-pointer block group">
                                 <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
                                 <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
-                                    <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i>
-                                    <span class="font-medium text-sm text-gray-700">Débito (À vista)</span>
+                                    <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i><span class="font-medium text-sm text-gray-700">Débito (À vista)</span>
                                 </div>
                             </label>
-
-                            <!-- Crédito -->
                             <label class="cursor-pointer block group">
                                 <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
                                 <div class="border border-gray-200 rounded-lg p-3 flex flex-col transition bg-white group-hover:border-teal-300">
-                                    <div class="flex items-center gap-3">
-                                        <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
-                                        <span class="font-medium text-sm text-gray-700">Crédito (à vista ou parcelado)</span>
-                                    </div>
-                                    <!-- Parcelas -->
+                                    <div class="flex items-center gap-3"><i class="fa-solid fa-credit-card text-orange-600 text-xl"></i><span class="font-medium text-sm text-gray-700">Crédito (à vista ou parcelado)</span></div>
                                     <div id="installments-wrapper" class="hidden mt-3 pl-8">
-                                        <select id="installments" class="w-full border border-gray-300 rounded text-sm py-1.5 focus:ring-teal-500 outline-none" onchange="calculateTotal()">
-                                            <!-- Opções JS -->
-                                        </select>
+                                        <select id="installments" class="w-full border border-gray-300 rounded text-sm py-1.5 focus:ring-teal-500 outline-none" onchange="calculateTotal()"></select>
                                     </div>
                                 </div>
                             </label>
@@ -262,27 +239,71 @@
 
                         <!-- Totais -->
                         <div class="border-t border-gray-100 pt-4 mb-6">
-                            <div class="flex justify-between mb-2 text-sm text-gray-500">
-                                <span>Subtotal</span>
-                                <span id="cart-subtotal">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between items-baseline text-gray-900">
-                                <span class="font-bold text-lg">Total</span>
-                                <span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span>
-                            </div>
+                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
+                            <div class="flex justify-between items-baseline text-gray-900"><span class="font-bold text-lg">Total</span><span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span></div>
                         </div>
                         
-                        <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-lg transition shadow-md flex justify-center items-center gap-2">
+                        <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-lg transition shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>
                         </button>
-                        
-                        <p class="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-shield-halved"></i> Ambiente 100% seguro
-                        </p>
+                        <p class="text-center text-xs text-gray-400 mt-3">Ambiente seguro Asaas</p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- VIEW 4: MINHA CONTA (NOVO) -->
+        <div id="view-account" class="view-section">
+            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
+            </button>
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Meus Dados</h2>
+                <p class="text-gray-600 mb-6 text-sm">Estes dados serão usados automaticamente nas suas compras.</p>
+                
+                <form id="account-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">Nome Completo</label>
+                            <input type="text" id="acc-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">CPF/CNPJ</label>
+                            <input type="text" id="acc-cpf" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskCpfCnpj(this)">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">E-mail (Login)</label>
+                            <input type="email" id="acc-email" class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">Celular</label>
+                            <input type="tel" id="acc-phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskPhone(this)">
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="font-bold text-sm text-gray-800 mb-3">Endereço</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">CEP</label><input type="text" id="acc-cep" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" onblur="buscarCEPAccount(this.value)"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1">Rua</label><input type="text" id="acc-address" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Número</label><input type="text" id="acc-number" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Bairro</label><input type="text" id="acc-bairro" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Cidade</label><input type="text" id="acc-city" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none"></div>
+                        </div>
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">Complemento</label><input type="text" id="acc-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
+                    </div>
+
+                    <button type="button" onclick="saveAccountData()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition shadow-md mt-4">
+                        Salvar Dados
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
@@ -293,18 +314,14 @@
 
     <!-- LÓGICA DO SISTEMA -->
     <script>
-        // --- CONFIGURAÇÃO ---
+        // CONFIGURAÇÕES
         const db = [
-            { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição completa do Curso sobre TDAH." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso focado em técnicas de regulação emocional." }] },
-            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia prático." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas de organização." }] },
-            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo sensorial." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador de mesa." }] }
+            { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição do curso." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso sobre ansiedade." }] },
+            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia prático." }] },
+            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo sensorial." }] }
         ];
 
-        const fees = {
-            PIX: 0, 
-            DEBIT_CARD: 0,
-            CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 }
-        };
+        const fees = { PIX: 0, DEBIT_CARD: 0, CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 } };
 
         let cart = [];
         let currentItem = null;
@@ -323,207 +340,187 @@
 
         function updateAuthUI() {
             const container = document.getElementById('auth-buttons');
-            const emailField = document.getElementById('cust-email');
-            const nameField = document.getElementById('cust-name');
+            const msgLogin = document.getElementById('login-required-msg');
+            const formCustomer = document.getElementById('customer-form');
+            const btnCheckout = document.getElementById('btn-checkout');
+            const msgDataSource = document.getElementById('data-source-msg');
 
             if (currentUser) {
-                container.innerHTML = `<span class="mr-3 text-gray-600">Olá, ${currentUser.user_metadata.full_name || 'Usuário'}</span><button onclick="netlifyIdentity.logout()" class="text-red-500 hover:underline">Sair</button>`;
-                if (emailField) {
-                    emailField.value = currentUser.email;
-                    emailField.readOnly = true;
-                    if(currentUser.user_metadata.full_name) nameField.value = currentUser.user_metadata.full_name;
+                container.innerHTML = `
+                    <button onclick="router('account')" class="text-gray-600 hover:text-teal-600 mr-4 font-bold">Minha Conta</button>
+                    <span class="mr-3 text-sm text-gray-500">|</span>
+                    <button onclick="netlifyIdentity.logout()" class="text-red-500 hover:underline">Sair</button>
+                `;
+                if(msgLogin) msgLogin.classList.add('hidden');
+                if(formCustomer) formCustomer.classList.remove('hidden');
+                if(btnCheckout) btnCheckout.disabled = false;
+                
+                // Preenche formulário de checkout com metadados
+                const meta = currentUser.user_metadata || {};
+                if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
+                document.getElementById('cust-email').value = currentUser.email;
+                if(meta.cpf) document.getElementById('cust-cpf').value = meta.cpf;
+                if(meta.phone) document.getElementById('cust-phone').value = meta.phone;
+                if(meta.cep) document.getElementById('cust-cep').value = meta.cep;
+                if(meta.address) document.getElementById('cust-address').value = meta.address;
+                if(meta.number) document.getElementById('cust-number').value = meta.number;
+                if(meta.bairro) document.getElementById('cust-bairro').value = meta.bairro;
+                if(meta.city) document.getElementById('cust-city').value = meta.city;
+                if(meta.comp) document.getElementById('cust-comp').value = meta.comp;
+                
+                if(msgDataSource && meta.cpf) {
+                    msgDataSource.textContent = "Preenchido Automaticamente";
+                    msgDataSource.classList.remove('bg-gray-100', 'text-gray-500');
+                    msgDataSource.classList.add('bg-green-100', 'text-green-700');
                 }
+
+                // Preenche formulário de Minha Conta
+                if(document.getElementById('acc-email')) {
+                    document.getElementById('acc-email').value = currentUser.email;
+                    document.getElementById('acc-name').value = meta.full_name || '';
+                    document.getElementById('acc-cpf').value = meta.cpf || '';
+                    document.getElementById('acc-phone').value = meta.phone || '';
+                    document.getElementById('acc-cep').value = meta.cep || '';
+                    document.getElementById('acc-address').value = meta.address || '';
+                    document.getElementById('acc-number').value = meta.number || '';
+                    document.getElementById('acc-bairro').value = meta.bairro || '';
+                    document.getElementById('acc-city').value = meta.city || '';
+                    document.getElementById('acc-comp').value = meta.comp || '';
+                }
+
             } else {
-                container.innerHTML = `<button onclick="netlifyIdentity.open('login')" class="text-teal-600 hover:text-teal-800 mr-4">Entrar</button><button onclick="netlifyIdentity.open('signup')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition">Cadastro</button>`;
-                if (emailField) { emailField.readOnly = false; emailField.value = ''; nameField.value = ''; }
+                container.innerHTML = `<button onclick="netlifyIdentity.open('login')" class="text-teal-600 hover:text-teal-800 mr-4 font-bold">Entrar</button><button onclick="netlifyIdentity.open('signup')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition font-bold">Cadastro</button>`;
+                if(msgLogin) msgLogin.classList.remove('hidden');
+                if(formCustomer) formCustomer.classList.add('hidden');
+                if(btnCheckout) btnCheckout.disabled = true;
             }
+        }
+
+        // --- SALVAR DADOS DA CONTA ---
+        function saveAccountData() {
+            if (!currentUser) return;
+            const btn = document.querySelector('#account-form button');
+            const originalText = btn.innerText;
+            btn.innerText = "Salvando...";
+            btn.disabled = true;
+
+            const newData = {
+                full_name: document.getElementById('acc-name').value,
+                cpf: document.getElementById('acc-cpf').value,
+                phone: document.getElementById('acc-phone').value,
+                cep: document.getElementById('acc-cep').value,
+                address: document.getElementById('acc-address').value,
+                number: document.getElementById('acc-number').value,
+                bairro: document.getElementById('acc-bairro').value,
+                city: document.getElementById('acc-city').value,
+                comp: document.getElementById('acc-comp').value
+            };
+
+            currentUser.update({ data: newData })
+                .then(user => {
+                    currentUser = user;
+                    showToast("Dados salvos com sucesso!");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                })
+                .catch(err => {
+                    console.error("Erro ao salvar:", err);
+                    alert("Erro ao salvar dados.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
         }
 
         function router(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
-            window.scrollTo(0, 0);
-            if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); updateAuthUI(); }
+            window.scrollTo(0,0);
+            if (viewName === 'cart' || viewName === 'account') updateAuthUI();
+            if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
         }
 
-        function renderCatalog() {
-            const container = document.getElementById('catalog-container');
-            container.innerHTML = '';
-            db.forEach(section => {
-                let itemsHtml = '';
-                section.items.forEach(item => {
-                    itemsHtml += `<div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">${item.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1">${item.name}</h3><p class="text-teal-600 font-semibold">R$ ${item.price.toFixed(2).replace('.', ',')}</p></div>`;
-                });
-                container.innerHTML += `<div><h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${section.title}</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">${itemsHtml}</div></div>`;
-            });
-        }
-
-        function openProduct(id) {
-            let product = null, category = "";
-            db.forEach(section => { const found = section.items.find(i => i.id === id); if (found) { product = found; category = section.title; } });
-            if (!product) return;
-            currentItem = product; currentQty = 1;
-            document.getElementById('detail-icon').textContent = product.icon;
-            document.getElementById('detail-category').textContent = category;
-            document.getElementById('detail-title').textContent = product.name;
-            document.getElementById('detail-desc').textContent = product.desc;
-            document.getElementById('detail-price').textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
-            document.getElementById('detail-qty').textContent = currentQty;
-            router('product');
-        }
-
-        function updateQty(amount) { if (currentQty + amount >= 1) { currentQty += amount; document.getElementById('detail-qty').textContent = currentQty; } }
-        function showToast(message) { const t = document.getElementById("toast"); t.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`; t.className = "show"; setTimeout(() => t.className = "", 3000); }
-        function addToCartCurrent() {
-            const ex = cart.find(i => i.id === currentItem.id);
-            if (ex) ex.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
-            updateCartIcon(); showToast("Adicionado!");
-        }
-        function updateCartIcon() { document.getElementById('cart-count').textContent = cart.reduce((acc, i) => acc + i.qty, 0); }
-        function removeFromCart(index) { cart.splice(index, 1); renderCart(); updateCartIcon(); }
-
-        function renderCart() {
-            const container = document.getElementById('cart-items-container'); container.innerHTML = '';
-            if (cart.length === 0) { container.innerHTML = '<div class="text-center py-10 text-gray-400">Carrinho vazio</div>'; }
-            else {
-                cart.forEach((item, index) => {
-                    container.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div><div><h4 class="font-bold text-gray-900">${item.name}</h4><p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p></div></div><div class="flex items-center gap-4"><span class="font-bold text-teal-700">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span><button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`;
-                });
-            }
-        }
+        // ... (RenderCatalog, OpenProduct, UpdateQty, AddToCart, RemoveFromCart IGUAIS AO ANTERIOR) ...
+        function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1">${i.name}</h3><p class="text-teal-600 font-semibold">R$ ${i.price.toFixed(2).replace('.', ',')}</p></div>`});c.innerHTML+=`<div><h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${s.title}</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">${h}</div></div>`})}
+        function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
+        function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
+        function showToast(m){const t=document.getElementById("toast");t.innerHTML=`<i class="fa-solid fa-check-circle mr-2"></i> ${m}`;t.className="show";setTimeout(()=>t.className="",3000)}
+        function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!")}
+        function updateCartIcon(){document.getElementById('cart-count').textContent=cart.reduce((a,i)=>a+i.qty,0)}
+        function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon()}
+        function renderCart(){const c=document.getElementById('cart-items-container');c.innerHTML='';if(cart.length===0){c.innerHTML='<div class="text-center py-10 text-gray-400">Vazio</div>'}else{cart.forEach((i,idx)=>{c.innerHTML+=`<div class="flex justify-between bg-white p-4 rounded border"><div class="flex gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold">${i.name}</h4><p class="text-sm text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400"><i class="fa-solid fa-trash"></i></button></div></div>`});calculateTotal()}}
 
         // --- MÁSCARAS E CEP ---
-        function maskCpfCnpj(i){ 
-            let v = i.value.replace(/\D/g,"");
-            if (v.length <= 11) { // CPF
-                v = v.replace(/(\d{3})(\d)/,"$1.$2");
-                v = v.replace(/(\d{3})(\d)/,"$1.$2");
-                v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
-            } else { // CNPJ
-                v = v.replace(/^(\d{2})(\d)/,"$1.$2");
-                v = v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");
-                v = v.replace(/\.(\d{3})(\d)/,".$1/$2");
-                v = v.replace(/(\d{4})(\d)/,"$1-$2");
-            }
-            i.value = v.substring(0, 18);
-        }
-        function maskPhone(i){ i.value = i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15); }
-        async function buscarCEP(cep) {
-            cep = cep.replace(/\D/g, ''); if (cep.length !== 8) return;
-            try { 
-                document.getElementById('cust-address').value = "Buscando...";
-                const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const d = await r.json(); 
-                if (!d.erro) { 
-                    document.getElementById('cust-address').value = d.logradouro; 
-                    document.getElementById('cust-bairro').value = d.bairro; 
-                    document.getElementById('cust-city').value = d.localidade + ' - ' + d.uf;
-                    document.getElementById('cust-number').focus(); 
-                } else {
-                    document.getElementById('cust-address').value = "";
-                    alert("CEP não encontrado.");
-                }
-            } catch (e) { console.error(e); }
-        }
+        function maskCpfCnpj(i){ let v=i.value.replace(/\D/g,""); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
+        function maskPhone(i){i.value=i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15)}
+        
+        async function buscarCEP(cep) { cep=cep.replace(/\D/g,'');if(cep.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const d=await r.json();if(!d.erro){document.getElementById('cust-address').value=d.logradouro;document.getElementById('cust-bairro').value=d.bairro;document.getElementById('cust-city').value=d.localidade+' - '+d.uf;document.getElementById('cust-number').focus()}else{alert('CEP não encontrado')}}catch(e){console.error(e)}}
+        async function buscarCEPAccount(cep) { cep=cep.replace(/\D/g,'');if(cep.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const d=await r.json();if(!d.erro){document.getElementById('acc-address').value=d.logradouro;document.getElementById('acc-bairro').value=d.bairro;document.getElementById('acc-city').value=d.localidade+' - '+d.uf;document.getElementById('acc-number').focus()}}catch(e){console.error(e)}}
 
-        // --- PAGAMENTO UI ---
         function updatePaymentUI() {
-            const method = document.querySelector('input[name="payment_method"]:checked').value;
-            const wrap = document.getElementById('installments-wrapper');
-            const select = document.getElementById('installments');
-            if (method === 'CREDIT_CARD') {
-                wrap.classList.remove('hidden');
-                const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-                select.innerHTML = '';
-                for (let i = 1; i <= 6; i++) {
-                    const rate = fees.CREDIT_CARD[i] || 0;
-                    const total = baseTotal * (1 + rate);
-                    const parc = total / i;
-                    const opt = document.createElement('option');
-                    opt.value = i;
-                    opt.text = `${i}x de R$ ${parc.toFixed(2).replace('.', ',')} (Total: R$ ${total.toFixed(2).replace('.', ',')})`;
-                    select.appendChild(opt);
+            const m = document.querySelector('input[name="payment_method"]:checked').value;
+            const w = document.getElementById('installments-wrapper');
+            const s = document.getElementById('installments');
+            if(m==='CREDIT_CARD'){
+                w.classList.remove('hidden');
+                const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
+                s.innerHTML='';
+                for(let i=1;i<=6;i++){
+                    const r=fees.CREDIT_CARD[i]||0; const t=base*(1+r); const p=t/i;
+                    const o=document.createElement('option'); o.value=i; o.text=`${i}x R$ ${p.toFixed(2).replace('.',',')} (Total: R$ ${t.toFixed(2).replace('.',',')})`;
+                    s.appendChild(o);
                 }
-            } else { wrap.classList.add('hidden'); }
+            }else{w.classList.add('hidden')}
             calculateTotal();
         }
 
         function calculateTotal() {
-            if (cart.length === 0) return { finalTotal: 0, method: 'NONE', installments: 1 };
-            const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-            const method = document.querySelector('input[name="payment_method"]:checked').value;
-            let finalTotal = baseTotal;
-            let installments = 1;
-            if (method === 'CREDIT_CARD') {
-                installments = parseInt(document.getElementById('installments').value) || 1;
-                const rate = fees.CREDIT_CARD[installments] || 0;
-                finalTotal = baseTotal * (1 + rate);
-            } else {
-                finalTotal = baseTotal * (1 + fees.PIX);
-            }
-            document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
-            return { finalTotal, method, installments };
+            if(cart.length===0)return{finalTotal:0,method:'NONE',installments:1};
+            const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
+            const m=document.querySelector('input[name="payment_method"]:checked').value;
+            let final=base; let inst=1;
+            if(m==='CREDIT_CARD'){inst=parseInt(document.getElementById('installments').value)||1; final=base*(1+(fees.CREDIT_CARD[inst]||0))}
+            document.getElementById('cart-subtotal').textContent=`R$ ${base.toFixed(2).replace('.',',')}`;
+            document.getElementById('cart-total').textContent=`R$ ${final.toFixed(2).replace('.',',')}`;
+            return {finalTotal:final, method:m, installments:inst};
         }
 
         async function checkout() {
             const form = document.getElementById('customer-form');
-            if (!form.checkValidity()) { showToast("Preencha todos os dados!"); form.reportValidity(); return; }
-            if (cart.length === 0) return;
+            if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
+            if(cart.length===0)return;
 
-            const btn = document.getElementById('btn-checkout');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<span class="loader mr-2"></span> Processando...`;
-            btn.disabled = true;
+            const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
+            btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
 
-            const { finalTotal, method, installments } = calculateTotal();
-            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
+            const {finalTotal,method,installments} = calculateTotal();
+            const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ')+` (${method})`;
 
-            // Dados do Cliente
             const customer = {
                 name: document.getElementById('cust-name').value,
-                cpf: document.getElementById('cust-cpf').value.replace(/\D/g, ''),
+                cpf: document.getElementById('cust-cpf').value.replace(/\D/g,''),
                 email: document.getElementById('cust-email').value,
-                phone: document.getElementById('cust-phone').value.replace(/\D/g, ''),
-                cep: document.getElementById('cust-cep').value.replace(/\D/g, ''),
+                phone: document.getElementById('cust-phone').value.replace(/\D/g,''),
+                cep: document.getElementById('cust-cep').value.replace(/\D/g,''),
                 address: document.getElementById('cust-address').value,
                 addressNumber: document.getElementById('cust-number').value,
                 complement: document.getElementById('cust-comp').value,
-                bairro: document.getElementById('cust-bairro').value,
-                city: document.getElementById('cust-city').value
+                bairro: document.getElementById('cust-bairro').value
             };
 
-            // Mapping BillingType
             let billingTypeAPI = 'UNDEFINED';
-            if(method === 'PIX') billingTypeAPI = 'PIX';
-            if(method === 'DEBIT_CARD') billingTypeAPI = 'DEBIT_CARD'; // Tenta direto, se falhar o backend trata
-            if(method === 'CREDIT_CARD') billingTypeAPI = 'CREDIT_CARD';
+            if(method==='PIX') billingTypeAPI='PIX';
+            if(method==='CREDIT_CARD') billingTypeAPI='CREDIT_CARD';
 
             try {
-                const response = await fetch('/.netlify/functions/create_payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        customer,
-                        payment: {
-                            value: finalTotal.toFixed(2),
-                            description: `Hub: ${description}`,
-                            billingType: billingTypeAPI, 
-                            installmentCount: installments
-                        }
-                    })
+                const res = await fetch('/.netlify/functions/create_payment', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ customer, payment: { value: finalTotal.toFixed(2), description: `Hub: ${desc}`, billingType: billingTypeAPI, installmentCount: installments } })
                 });
-
-                const data = await response.json();
-
-                if (response.ok && data.paymentUrl) {
-                    window.location.href = data.paymentUrl;
-                } else {
-                    throw new Error(data.error || 'Erro na criação do pagamento.');
-                }
-            } catch (error) {
-                console.error("Erro checkout:", error);
-                alert("Erro ao conectar: " + error.message);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                const d = await res.json();
+                if(res.ok && d.paymentUrl) window.location.href=d.paymentUrl;
+                else throw new Error(d.error||'Erro na criação.');
+            } catch(e){
+                console.error(e); alert("Erro: "+e.message); btn.innerHTML=txt; btn.disabled=false;
             }
         }
 
