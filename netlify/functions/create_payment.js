@@ -14,56 +14,46 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        if (!event.body) {
-            throw new Error('Corpo da requisição vazio.');
-        }
+        if (!event.body) { throw new Error('Corpo da requisição vazio.'); }
 
         const data = JSON.parse(event.body);
         const { customer, payment } = data;
 
-        // Configurações
-        const API_URL = 'https://sandbox.asaas.com/api/v3';
-        const API_KEY = process.env.ASAAS_API_KEY;
-
-        if (!API_KEY) {
-            throw new Error('Chave de API não configurada no servidor.');
+        // Validações básicas
+        if (!customer || !customer.cpf || !customer.name) {
+            throw new Error('Dados do cliente incompletos (CPF e Nome são obrigatórios).');
         }
 
-        // Função auxiliar para fetch
+        const API_URL = '[https://sandbox.asaas.com/api/v3](https://sandbox.asaas.com/api/v3)';
+        const API_KEY = process.env.ASAAS_API_KEY;
+
+        if (!API_KEY) { throw new Error('Configuração de API Key ausente.'); }
+
         const fetchAsaas = async (endpoint, method, bodyContent) => {
             const options = {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'access_token': API_KEY
-                }
+                headers: { 'Content-Type': 'application/json', 'access_token': API_KEY }
             };
-            if (bodyContent) options.body = JSON.stringify(bodyContent);
+            if (bodyContent) { options.body = JSON.stringify(bodyContent); }
 
             const response = await fetch(`${API_URL}${endpoint}`, options);
             const json = await response.json();
 
             if (!response.ok) {
                 const errorMsg = json.errors && json.errors[0] ? json.errors[0].description : 'Erro na API Asaas';
-                console.error(`Erro Asaas [${endpoint}]:`, json);
-                throw new Error(errorMsg);
+                throw new Error(`Asaas (${endpoint}): ${errorMsg}`);
             }
             return json;
         };
 
-        // 1. Buscar ou Criar Cliente
+        // 1. Cliente
         let customerId = null;
-        // Remove pontuação do CPF para busca
         const cpfLimpo = customer.cpf.replace(/\D/g, '');
-        
-        console.log(`Buscando cliente CPF: ${cpfLimpo}`);
-        const searchRes = await fetchAsaas(`/customers?cpfCnpj=${cpfLimpo}`, 'GET');
+        const searchCustomer = await fetchAsaas(`/customers?cpfCnpj=${cpfLimpo}`, 'GET');
 
-        if (searchRes.data && searchRes.data.length > 0) {
-            customerId = searchRes.data[0].id;
-            console.log("Cliente encontrado:", customerId);
+        if (searchCustomer.data && searchCustomer.data.length > 0) {
+            customerId = searchCustomer.data[0].id;
         } else {
-            console.log("Criando novo cliente...");
             const newCustomer = await fetchAsaas('/customers', 'POST', {
                 name: customer.name,
                 cpfCnpj: cpfLimpo,
@@ -78,26 +68,24 @@ exports.handler = async function(event, context) {
             customerId = newCustomer.id;
         }
 
-        // 2. Criar a Cobrança
+        // 2. Cobrança
         const today = new Date();
-        today.setDate(today.getDate() + 2); // Vencimento em 2 dias
+        today.setDate(today.getDate() + 2);
         const dueDate = today.toISOString().split('T')[0];
 
         const paymentPayload = {
             customer: customerId,
-            billingType: payment.billingType, // PIX, CREDIT_CARD ou UNDEFINED
+            billingType: payment.billingType, 
             value: parseFloat(payment.value),
             dueDate: dueDate,
             description: payment.description
         };
 
-        // Se for Crédito e Parcelado (>1), adiciona configuração de parcelas
         if (payment.billingType === 'CREDIT_CARD' && payment.installmentCount > 1) {
             paymentPayload.installmentCount = payment.installmentCount;
             paymentPayload.installmentValue = parseFloat(payment.value) / payment.installmentCount;
         }
 
-        console.log("Criando cobrança...", JSON.stringify(paymentPayload));
         const paymentRes = await fetchAsaas('/payments', 'POST', paymentPayload);
 
         return {
@@ -111,7 +99,9 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: error.message || "Erro interno no servidor" })
+            body: JSON.stringify({ error: error.message || "Erro interno" })
         };
     }
 };
+```
+```eof
