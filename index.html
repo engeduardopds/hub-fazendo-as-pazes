@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS (Link Limpo) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome (Link Limpo) -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Link Limpo) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Netlify Identity Widget -->
+    <!-- Netlify Identity -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <style>
@@ -20,7 +20,6 @@
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-        /* Toast Notification */
         #toast {
             visibility: hidden;
             min-width: 280px;
@@ -51,7 +50,18 @@
             background-color: #f0fdfa;
             color: #0f766e;
             font-weight: 600;
+            box-shadow: 0 0 0 1px #0d9488;
         }
+
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -84,39 +94,28 @@
         
         <!-- VIEW 1: HOME (CATÁLOGO) -->
         <div id="view-home" class="view-section active">
-            <!-- Hero -->
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Loja Oficial</h1>
                 <p class="text-gray-600">Cursos, materiais e ferramentas para sua jornada.</p>
             </div>
-
-            <!-- Gerador de Seções (Injetado via JS) -->
-            <div id="catalog-container" class="space-y-16">
-                <!-- Conteúdo carregado via JavaScript -->
-            </div>
+            <div id="catalog-container" class="space-y-16"></div>
         </div>
 
-        <!-- VIEW 2: DETALHES DO PRODUTO -->
+        <!-- VIEW 2: DETALHES -->
         <div id="view-product" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
             </button>
-
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2">
-                    <!-- Foto do Produto -->
                     <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-8">
                         <span id="detail-icon" class="text-9xl text-gray-300">📦</span>
                     </div>
-                    
-                    <!-- Informações -->
                     <div class="p-8 md:p-12 flex flex-col justify-center">
                         <span id="detail-category" class="text-teal-600 font-bold text-sm uppercase tracking-wide mb-2">Categoria</span>
                         <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Item</h2>
-                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição detalhada do item vai aqui.</p>
+                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição.</p>
                         <div class="text-2xl font-bold text-gray-900 mb-8" id="detail-price">R$ 0,00</div>
-
-                        <!-- Controles -->
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex items-center border border-gray-300 rounded-lg">
                                 <button onclick="updateQty(-1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">-</button>
@@ -125,7 +124,6 @@
                             </div>
                             <span class="text-sm text-gray-500">Unidades</span>
                         </div>
-
                         <button onclick="addToCartCurrent()" class="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition transform active:scale-95 shadow-lg flex items-center justify-center gap-2">
                             <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
                         </button>
@@ -134,7 +132,7 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CHECKOUT (CARRINHO + DADOS) -->
+        <!-- VIEW 3: CHECKOUT (CADASTRO COMPLETO) -->
         <div id="view-cart" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
@@ -143,46 +141,77 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- COLUNA ESQUERDA: ITENS + DADOS DO CLIENTE -->
+                <!-- DADOS DO CLIENTE (CADASTRO) -->
                 <div class="lg:col-span-2 space-y-6">
-                    
-                    <!-- Resumo Carrinho -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
-                        <div id="cart-items-container" class="space-y-4">
-                            <!-- Itens do carrinho -->
+                        <div id="cart-items-container" class="space-y-4"></div>
+                    </div>
+
+                    <!-- Formulário Completo -->
+                    <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-lg text-teal-800">Dados do Cadastro</h3>
+                            <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded border border-teal-100">Seguro</span>
                         </div>
-                    </div>
-
-                    <!-- Mensagem para Login -->
-                    <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
-                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para finalizar sua compra.</p>
-                    </div>
-
-                    <!-- Formulário de Cliente (Só aparece se logado) -->
-                    <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4 hidden">
-                        <h3 class="font-bold text-lg mb-2 text-gray-800">Seus Dados</h3>
-                        <p class="text-sm text-gray-500 mb-4">Preenchimento automático com base no seu cadastro.</p>
                         
+                        <!-- Nome e CPF -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-                                <input type="text" id="cust-name" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" required>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label>
+                                <input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
-                                <input type="text" id="cust-cpf" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" placeholder="000.000.000-00" required oninput="maskCPF(this)">
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label>
+                                <input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)">
                             </div>
                         </div>
 
+                        <!-- Email e Celular -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                                <input type="email" id="cust-email" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" required readonly>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label>
+                                <input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Celular</label>
-                                <input type="tel" id="cust-phone" class="w-full px-4 py-2 border rounded focus:ring-teal-500 focus:border-teal-500" placeholder="(11) 99999-9999" required oninput="maskPhone(this)">
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular (com DDD)</label>
+                                <input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" placeholder="(11) 99999-9999" required oninput="maskPhone(this)">
+                            </div>
+                        </div>
+
+                        <!-- Endereço -->
+                        <div class="border-t border-gray-100 pt-4 mt-2">
+                            <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label>
+                                    <input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition" placeholder="00000-000" required onblur="buscarCEP(this.value)">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua / Logradouro</label>
+                                    <input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label>
+                                    <input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label>
+                                    <input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label>
+                                    <input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500 outline-none transition" required>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento (Opcional)</label>
+                                <input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition" placeholder="Apto, Bloco, etc.">
                             </div>
                         </div>
                     </form>
@@ -191,285 +220,316 @@
                 <!-- COLUNA DIREITA: PAGAMENTO -->
                 <div class="h-fit">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-24">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">Resumo</h3>
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">Resumo e Pagamento</h3>
                         
+                        <!-- Opções de Pagamento -->
+                        <div class="space-y-3 mb-6">
+                            <!-- Pix -->
+                            <label class="cursor-pointer block group">
+                                <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
+                                <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
+                                    <i class="fa-brands fa-pix text-teal-600 text-xl"></i>
+                                    <span class="font-medium text-sm text-gray-700">Pix (À vista)</span>
+                                </div>
+                            </label>
+                            
+                            <!-- Débito -->
+                            <label class="cursor-pointer block group">
+                                <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
+                                <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
+                                    <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i>
+                                    <span class="font-medium text-sm text-gray-700">Débito (À vista)</span>
+                                </div>
+                            </label>
+
+                            <!-- Crédito -->
+                            <label class="cursor-pointer block group">
+                                <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
+                                <div class="border border-gray-200 rounded-lg p-3 flex flex-col transition bg-white group-hover:border-teal-300">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-credit-card text-orange-600 text-xl"></i>
+                                        <span class="font-medium text-sm text-gray-700">Crédito (à vista ou parcelado)</span>
+                                    </div>
+                                    <!-- Parcelas -->
+                                    <div id="installments-wrapper" class="hidden mt-3 pl-8">
+                                        <select id="installments" class="w-full border border-gray-300 rounded text-sm py-1.5 focus:ring-teal-500 outline-none" onchange="calculateTotal()">
+                                            <!-- Opções JS -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
                         <!-- Totais -->
-                        <div class="border-t pt-4">
-                            <div class="flex justify-between mb-2 text-gray-600">
+                        <div class="border-t border-gray-100 pt-4 mb-6">
+                            <div class="flex justify-between mb-2 text-sm text-gray-500">
                                 <span>Subtotal</span>
                                 <span id="cart-subtotal">R$ 0,00</span>
                             </div>
-                            <div class="flex justify-between mb-6 text-xl font-bold text-gray-900 border-t pt-4">
-                                <span>Total</span>
-                                <span id="cart-total">R$ 0,00</span>
+                            <div class="flex justify-between items-baseline text-gray-900">
+                                <span class="font-bold text-lg">Total</span>
+                                <span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span>
                             </div>
                         </div>
                         
-                        <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md mb-3 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-lg transition shadow-md flex justify-center items-center gap-2">
                             <span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>
                         </button>
+                        
+                        <p class="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-shield-halved"></i> Ambiente 100% seguro
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
         <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.</div>
     </footer>
 
-    <!-- ELEMENTO TOAST (Notificação) -->
     <div id="toast">Item adicionado ao carrinho!</div>
 
     <!-- LÓGICA DO SISTEMA -->
     <script>
-        // --- 1. BANCO DE DADOS (CONFIGURAÇÃO FÁCIL) ---
+        // --- CONFIGURAÇÃO ---
         const db = [
-            {
-                title: "Seção 1: Cursos Online",
-                items: [
-                    { id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição completa do Curso sobre TDAH. Módulos, aulas gravadas e certificado." },
-                    { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso focado em técnicas de regulação emocional para ansiedade." }
-                ]
-            },
-            {
-                title: "Seção 2: E-books e Textos",
-                items: [
-                    { id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia prático em PDF para organizar sua rotina matinal." },
-                    { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas de organização financeira e de tarefas." }
-                ]
-            },
-            {
-                title: "Seção 3: Impressões 3D",
-                items: [
-                    { id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "�", desc: "Brinquedo sensorial impresso em 3D para foco e alívio de estresse." },
-                    { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador de mesa modular impresso em 3D." }
-                ]
-            }
+            { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição completa do Curso sobre TDAH." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso focado em técnicas de regulação emocional." }] },
+            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia prático." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas de organização." }] },
+            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo sensorial." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador de mesa." }] }
         ];
 
-        // --- 2. ESTADO DA APLICAÇÃO ---
+        const fees = {
+            PIX: 0, 
+            DEBIT_CARD: 0,
+            CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 }
+        };
+
         let cart = [];
         let currentItem = null;
         let currentQty = 1;
-        let currentUser = null; // Armazena usuário logado
+        let currentUser = null;
 
-        // --- 3. INICIALIZAÇÃO ---
         function init() {
             renderCatalog();
             updateCartIcon();
-            
-            // Inicializa Netlify Identity
             if (window.netlifyIdentity) {
-                window.netlifyIdentity.on("init", user => {
-                    currentUser = user;
-                    updateAuthUI();
-                });
-                window.netlifyIdentity.on("login", user => {
-                    currentUser = user;
-                    updateAuthUI();
-                    netlifyIdentity.close();
-                });
-                window.netlifyIdentity.on("logout", () => {
-                    currentUser = null;
-                    updateAuthUI();
-                    router('home');
-                });
+                window.netlifyIdentity.on("init", user => { currentUser = user; updateAuthUI(); });
+                window.netlifyIdentity.on("login", user => { currentUser = user; updateAuthUI(); netlifyIdentity.close(); });
+                window.netlifyIdentity.on("logout", () => { currentUser = null; updateAuthUI(); router('home'); });
             }
         }
 
-        // --- 4. AUTENTICAÇÃO E UI ---
         function updateAuthUI() {
-            const authContainer = document.getElementById('auth-buttons');
-            const customerForm = document.getElementById('customer-form');
-            const loginMsg = document.getElementById('login-required-msg');
-            const btnCheckout = document.getElementById('btn-checkout');
-            const emailInput = document.getElementById('cust-email');
-            const nameInput = document.getElementById('cust-name');
+            const container = document.getElementById('auth-buttons');
+            const emailField = document.getElementById('cust-email');
+            const nameField = document.getElementById('cust-name');
 
             if (currentUser) {
-                // Usuário Logado
-                authContainer.innerHTML = `
-                    <span class="mr-3 text-gray-600">Olá, ${currentUser.user_metadata.full_name || 'Usuário'}</span>
-                    <button onclick="netlifyIdentity.logout()" class="text-red-500 hover:underline">Sair</button>
-                `;
-                
-                // Preenche formulário se estiver na tela de checkout
-                if (customerForm) {
-                    customerForm.classList.remove('hidden');
-                    loginMsg.classList.add('hidden');
-                    btnCheckout.disabled = false;
-                    emailInput.value = currentUser.email;
-                    if(currentUser.user_metadata.full_name) nameInput.value = currentUser.user_metadata.full_name;
+                container.innerHTML = `<span class="mr-3 text-gray-600">Olá, ${currentUser.user_metadata.full_name || 'Usuário'}</span><button onclick="netlifyIdentity.logout()" class="text-red-500 hover:underline">Sair</button>`;
+                if (emailField) {
+                    emailField.value = currentUser.email;
+                    emailField.readOnly = true;
+                    if(currentUser.user_metadata.full_name) nameField.value = currentUser.user_metadata.full_name;
                 }
             } else {
-                // Usuário Não Logado
-                authContainer.innerHTML = `
-                    <button onclick="netlifyIdentity.open('login')" class="text-teal-600 hover:text-teal-800 mr-4">Entrar</button>
-                    <button onclick="netlifyIdentity.open('signup')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition">Cadastrar</button>
-                `;
-
-                if (customerForm) {
-                    customerForm.classList.add('hidden');
-                    loginMsg.classList.remove('hidden');
-                    btnCheckout.disabled = true;
-                }
+                container.innerHTML = `<button onclick="netlifyIdentity.open('login')" class="text-teal-600 hover:text-teal-800 mr-4">Entrar</button><button onclick="netlifyIdentity.open('signup')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition">Cadastro</button>`;
+                if (emailField) { emailField.readOnly = false; emailField.value = ''; nameField.value = ''; }
             }
         }
 
-        // --- 5. ROTEAMENTO (SPA) ---
         function router(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
             window.scrollTo(0, 0);
-
-            if (viewName === 'cart') {
-                renderCart();
-                updateAuthUI(); // Garante que o estado de login reflita na tela de checkout
-            }
+            if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); updateAuthUI(); }
         }
 
-        // --- 6. RENDERIZAR O CATÁLOGO (HOME) ---
         function renderCatalog() {
             const container = document.getElementById('catalog-container');
             container.innerHTML = '';
-
             db.forEach(section => {
                 let itemsHtml = '';
                 section.items.forEach(item => {
-                    itemsHtml += `
-                        <div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group">
-                            <div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">
-                                ${item.icon}
-                            </div>
-                            <h3 class="font-bold text-gray-900 text-lg mb-1">${item.name}</h3>
-                            <p class="text-teal-600 font-semibold">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
-                        </div>
-                    `;
+                    itemsHtml += `<div onclick="openProduct(${item.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-4 group"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-4xl mb-4 group-hover:scale-105 transition duration-300">${item.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1">${item.name}</h3><p class="text-teal-600 font-semibold">R$ ${item.price.toFixed(2).replace('.', ',')}</p></div>`;
                 });
-
-                container.innerHTML += `
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${section.title}</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                            ${itemsHtml}
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += `<div><h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-teal-500 pl-4">${section.title}</h2><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">${itemsHtml}</div></div>`;
             });
         }
 
-        // --- 7. ABRIR PÁGINA DO PRODUTO ---
         function openProduct(id) {
-            let product = null;
-            let category = "";
-            
-            db.forEach(section => {
-                const found = section.items.find(i => i.id === id);
-                if (found) { product = found; category = section.title; }
-            });
-
+            let product = null, category = "";
+            db.forEach(section => { const found = section.items.find(i => i.id === id); if (found) { product = found; category = section.title; } });
             if (!product) return;
-
-            currentItem = product;
-            currentQty = 1;
-            
+            currentItem = product; currentQty = 1;
             document.getElementById('detail-icon').textContent = product.icon;
             document.getElementById('detail-category').textContent = category;
             document.getElementById('detail-title').textContent = product.name;
             document.getElementById('detail-desc').textContent = product.desc;
             document.getElementById('detail-price').textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
             document.getElementById('detail-qty').textContent = currentQty;
-
             router('product');
         }
 
-        function updateQty(amount) {
-            if (currentQty + amount >= 1) {
-                currentQty += amount;
-                document.getElementById('detail-qty').textContent = currentQty;
-            }
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`;
-            toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-
+        function updateQty(amount) { if (currentQty + amount >= 1) { currentQty += amount; document.getElementById('detail-qty').textContent = currentQty; } }
+        function showToast(message) { const t = document.getElementById("toast"); t.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i> ${message}`; t.className = "show"; setTimeout(() => t.className = "", 3000); }
         function addToCartCurrent() {
-            const existing = cart.find(i => i.id === currentItem.id);
-            if (existing) existing.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
-            updateCartIcon();
-            showToast(`${currentQty}x ${currentItem.name} adicionado!`);
+            const ex = cart.find(i => i.id === currentItem.id);
+            if (ex) ex.qty += currentQty; else cart.push({ ...currentItem, qty: currentQty });
+            updateCartIcon(); showToast("Adicionado!");
         }
+        function updateCartIcon() { document.getElementById('cart-count').textContent = cart.reduce((acc, i) => acc + i.qty, 0); }
+        function removeFromCart(index) { cart.splice(index, 1); renderCart(); updateCartIcon(); }
 
-        function updateCartIcon() {
-            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
-            document.getElementById('cart-count').textContent = totalQty;
-        }
-
-        // --- 8. LÓGICA DO CARRINHO ---
         function renderCart() {
-            const container = document.getElementById('cart-items-container');
-            container.innerHTML = '';
-            let total = 0;
-
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 bg-white rounded-lg border border-gray-200"><p class="text-gray-500">Seu carrinho está vazio.</p></div>';
-            } else {
+            const container = document.getElementById('cart-items-container'); container.innerHTML = '';
+            if (cart.length === 0) { container.innerHTML = '<div class="text-center py-10 text-gray-400">Carrinho vazio</div>'; }
+            else {
                 cart.forEach((item, index) => {
-                    const itemTotal = item.price * item.qty;
-                    total += itemTotal;
-                    
-                    container.innerHTML += `
-                        <div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div>
-                                <div>
-                                    <h4 class="font-bold text-gray-900">${item.name}</h4>
-                                    <p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="font-bold text-teal-700">R$ ${itemTotal.toFixed(2).replace('.', ',')}</span>
-                                <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
+                    container.innerHTML += `<div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-xl">${item.icon}</div><div><h4 class="font-bold text-gray-900">${item.name}</h4><p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</p></div></div><div class="flex items-center gap-4"><span class="font-bold text-teal-700">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span><button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`;
                 });
             }
-
-            document.getElementById('cart-subtotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('cart-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            renderCart();
-            updateCartIcon();
-        }
-
-        function maskCPF(i){ i.value = i.value.replace(/\D/g,"").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2").substring(0,14); }
-        function maskPhone(i){ i.value = i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15); }
-        
-        // --- CHECKOUT (Apenas Simulação por enquanto, focado no login) ---
-        function checkout() {
-            if (!currentUser) {
-                alert("Você precisa fazer login para continuar.");
-                netlifyIdentity.open();
-                return;
+        // --- MÁSCARAS E CEP ---
+        function maskCpfCnpj(i){ 
+            let v = i.value.replace(/\D/g,"");
+            if (v.length <= 11) { // CPF
+                v = v.replace(/(\d{3})(\d)/,"$1.$2");
+                v = v.replace(/(\d{3})(\d)/,"$1.$2");
+                v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+            } else { // CNPJ
+                v = v.replace(/^(\d{2})(\d)/,"$1.$2");
+                v = v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");
+                v = v.replace(/\.(\d{3})(\d)/,".$1/$2");
+                v = v.replace(/(\d{4})(\d)/,"$1-$2");
             }
-            // Lógica de pagamento virá depois
-            alert("Pagamento em desenvolvimento. Login verificado com sucesso!");
+            i.value = v.substring(0, 18);
+        }
+        function maskPhone(i){ i.value = i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15); }
+        async function buscarCEP(cep) {
+            cep = cep.replace(/\D/g, ''); if (cep.length !== 8) return;
+            try { 
+                document.getElementById('cust-address').value = "Buscando...";
+                const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const d = await r.json(); 
+                if (!d.erro) { 
+                    document.getElementById('cust-address').value = d.logradouro; 
+                    document.getElementById('cust-bairro').value = d.bairro; 
+                    document.getElementById('cust-city').value = d.localidade + ' - ' + d.uf;
+                    document.getElementById('cust-number').focus(); 
+                } else {
+                    document.getElementById('cust-address').value = "";
+                    alert("CEP não encontrado.");
+                }
+            } catch (e) { console.error(e); }
         }
 
-        // Inicia o app
+        // --- PAGAMENTO UI ---
+        function updatePaymentUI() {
+            const method = document.querySelector('input[name="payment_method"]:checked').value;
+            const wrap = document.getElementById('installments-wrapper');
+            const select = document.getElementById('installments');
+            if (method === 'CREDIT_CARD') {
+                wrap.classList.remove('hidden');
+                const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+                select.innerHTML = '';
+                for (let i = 1; i <= 6; i++) {
+                    const rate = fees.CREDIT_CARD[i] || 0;
+                    const total = baseTotal * (1 + rate);
+                    const parc = total / i;
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.text = `${i}x de R$ ${parc.toFixed(2).replace('.', ',')} (Total: R$ ${total.toFixed(2).replace('.', ',')})`;
+                    select.appendChild(opt);
+                }
+            } else { wrap.classList.add('hidden'); }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            if (cart.length === 0) return { finalTotal: 0, method: 'NONE', installments: 1 };
+            const baseTotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+            const method = document.querySelector('input[name="payment_method"]:checked').value;
+            let finalTotal = baseTotal;
+            let installments = 1;
+            if (method === 'CREDIT_CARD') {
+                installments = parseInt(document.getElementById('installments').value) || 1;
+                const rate = fees.CREDIT_CARD[installments] || 0;
+                finalTotal = baseTotal * (1 + rate);
+            } else {
+                finalTotal = baseTotal * (1 + fees.PIX);
+            }
+            document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
+            return { finalTotal, method, installments };
+        }
+
+        async function checkout() {
+            const form = document.getElementById('customer-form');
+            if (!form.checkValidity()) { showToast("Preencha todos os dados!"); form.reportValidity(); return; }
+            if (cart.length === 0) return;
+
+            const btn = document.getElementById('btn-checkout');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="loader mr-2"></span> Processando...`;
+            btn.disabled = true;
+
+            const { finalTotal, method, installments } = calculateTotal();
+            const description = cart.map(i => `${i.qty}x ${i.name}`).join(', ') + ` (${method})`;
+
+            // Dados do Cliente
+            const customer = {
+                name: document.getElementById('cust-name').value,
+                cpf: document.getElementById('cust-cpf').value.replace(/\D/g, ''),
+                email: document.getElementById('cust-email').value,
+                phone: document.getElementById('cust-phone').value.replace(/\D/g, ''),
+                cep: document.getElementById('cust-cep').value.replace(/\D/g, ''),
+                address: document.getElementById('cust-address').value,
+                addressNumber: document.getElementById('cust-number').value,
+                complement: document.getElementById('cust-comp').value,
+                bairro: document.getElementById('cust-bairro').value,
+                city: document.getElementById('cust-city').value
+            };
+
+            // Mapping BillingType
+            let billingTypeAPI = 'UNDEFINED';
+            if(method === 'PIX') billingTypeAPI = 'PIX';
+            if(method === 'DEBIT_CARD') billingTypeAPI = 'DEBIT_CARD'; // Tenta direto, se falhar o backend trata
+            if(method === 'CREDIT_CARD') billingTypeAPI = 'CREDIT_CARD';
+
+            try {
+                const response = await fetch('/.netlify/functions/create_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        customer,
+                        payment: {
+                            value: finalTotal.toFixed(2),
+                            description: `Hub: ${description}`,
+                            billingType: billingTypeAPI, 
+                            installmentCount: installments
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    throw new Error(data.error || 'Erro na criação do pagamento.');
+                }
+            } catch (error) {
+                console.error("Erro checkout:", error);
+                alert("Erro ao conectar: " + error.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
         init();
     </script>
 </body>
 </html>
 ```
-```�
+```
