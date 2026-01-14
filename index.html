@@ -1,471 +1,115 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- CSS: Tailwind e FontAwesome (Links Limpos) -->
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
-    <!-- Netlify Identity -->
-    <script type="text/javascript" src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)"></script>
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+exports.handler = async function(event, context) {
+    // Cabeçalhos CORS
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+    };
 
-        /* Toast */
-        #toast {
-            visibility: hidden;
-            min-width: 280px;
-            background-color: rgba(13, 148, 136, 0.95);
-            color: #fff;
-            text-align: center;
-            border-radius: 50px;
-            padding: 12px 24px;
-            position: fixed;
-            z-index: 100;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 14px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
-        
-        /* Radio */
-        .payment-radio:checked + div {
-            border-color: #0d9488;
-            background-color: #f0fdfa;
-            color: #0f766e;
-            font-weight: 600;
-            box-shadow: 0 0 0 1px #0d9488;
-        }
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 200, headers, body: '' };
+    }
 
-        /* Spinner */
-        .loader {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método não permitido' }) };
+    }
 
-    <!-- Navbar -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="router('home')">
-                <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">FP</div>
-                <span class="font-bold text-lg tracking-tight">Hub Fazendo as Pazes</span>
-            </div>
+    try {
+        if (!event.body) throw new Error('Corpo da requisição vazio.');
 
-            <div class="flex items-center gap-6">
-                <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4"></div>
-                <div class="relative cursor-pointer hover:text-teal-600 transition" onclick="router('cart')">
-                    <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
-                </div>
-            </div>
-        </div>
-    </header>
+        const data = JSON.parse(event.body);
+        const { customer, payment } = data;
 
-    <main class="flex-grow container mx-auto px-6 py-8 max-w-6xl">
-        
-        <!-- VIEW 1: HOME (CATÁLOGO EM GRADE) -->
-        <div id="view-home" class="view-section active">
-            <div class="text-center mb-12">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Loja Oficial</h1>
-                <p class="text-gray-600">Cursos, materiais e ferramentas para sua jornada.</p>
-            </div>
-            <div id="catalog-container" class="space-y-16"></div>
-        </div>
+        // Validações
+        if (!customer || !customer.cpf || !customer.name) throw new Error('Dados do cliente incompletos.');
+        if (!payment || !payment.value) throw new Error('Dados do pagamento incompletos.');
 
-        <!-- VIEW 2: DETALHES -->
-        <div id="view-product" class="view-section">
-            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
-            </button>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2">
-                    <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-8">
-                        <span id="detail-icon" class="text-9xl text-gray-300">📦</span>
-                    </div>
-                    <div class="p-8 md:p-12 flex flex-col justify-center">
-                        <span id="detail-category" class="text-teal-600 font-bold text-sm uppercase tracking-wide mb-2">Categoria</span>
-                        <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Item</h2>
-                        <p id="detail-desc" class="text-gray-600 mb-6 leading-relaxed">Descrição detalhada do item vai aqui.</p>
-                        <div class="text-2xl font-bold text-gray-900 mb-8" id="detail-price">R$ 0,00</div>
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="flex items-center border border-gray-300 rounded-lg">
-                                <button onclick="updateQty(-1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">-</button>
-                                <span id="detail-qty" class="px-4 font-bold">1</span>
-                                <button onclick="updateQty(1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">+</button>
-                            </div>
-                            <span class="text-sm text-gray-500">Unidades</span>
-                        </div>
-                        <button onclick="addToCartCurrent()" class="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition transform active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        const API_URL = 'https://sandbox.asaas.com/api/v3';
+        const API_KEY = process.env.ASAAS_API_KEY;
 
-        <!-- VIEW 3: CHECKOUT -->
-        <div id="view-cart" class="view-section">
-            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-left"></i> Continuar comprando
-            </button>
-            <h2 class="text-2xl font-bold mb-6">Finalizar Compra</h2>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <!-- Coluna Esquerda: Itens e Dados -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Itens -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
-                        <div id="cart-items-container" class="space-y-4"></div>
-                    </div>
+        if (!API_KEY) throw new Error('Configuração de API Key ausente.');
 
-                    <!-- Aviso de Login -->
-                    <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
-                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
-                        <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
-                    </div>
-
-                    <!-- Formulário -->
-                    <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
-                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded" id="data-source-msg">Preenchimento Manual</span>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label><input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label><input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)"></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
-                        </div>
-                        <div class="border-t border-gray-100 pt-4 mt-2">
-                            <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label><input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)"></div>
-                                <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label><input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
-                            </div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Coluna Direita: Pagamento -->
-                <div class="h-fit">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-24">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
-                        
-                        <!-- Cupom -->
-                        <div class="mb-6">
-                            <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cupom de Desconto</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="coupon-code" class="w-full px-3 py-2 text-sm border rounded focus:ring-teal-500" placeholder="Código">
-                                <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded text-sm font-medium transition">Aplicar</button>
-                            </div>
-                        </div>
-
-                        <!-- Opções -->
-                        <div class="space-y-3 mb-6">
-                            <label class="cursor-pointer block group">
-                                <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
-                                <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
-                                    <i class="fa-brands fa-pix text-teal-600 text-xl"></i><span class="font-medium text-sm text-gray-700">Pix (À vista)</span>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer block group">
-                                <input type="radio" name="payment_method" value="DEBIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
-                                <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 transition bg-white group-hover:border-teal-300">
-                                    <i class="fa-regular fa-credit-card text-blue-600 text-xl"></i><span class="font-medium text-sm text-gray-700">Débito (À vista)</span>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer block group">
-                                <input type="radio" name="payment_method" value="CREDIT_CARD" class="hidden payment-radio" onchange="updatePaymentUI()">
-                                <div class="border border-gray-200 rounded-lg p-3 flex flex-col transition bg-white group-hover:border-teal-300">
-                                    <div class="flex items-center gap-3"><i class="fa-solid fa-credit-card text-orange-600 text-xl"></i><span class="font-medium text-sm text-gray-700">Crédito (à vista ou parcelado)</span></div>
-                                    <div id="installments-wrapper" class="hidden mt-3 pl-8">
-                                        <select id="installments" class="w-full border border-gray-300 rounded text-sm py-1.5 focus:ring-teal-500 outline-none" onchange="calculateTotal()"></select>
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-
-                        <!-- Totais -->
-                        <div class="border-t border-gray-100 pt-4 mb-6">
-                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
-                            <div class="flex justify-between items-baseline text-gray-900"><span class="font-bold text-lg">Total</span><span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span></div>
-                        </div>
-                        
-                        <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-lg transition shadow-md flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>
-                        </button>
-                        <p class="text-center text-xs text-gray-400 mt-3">Ambiente seguro Asaas</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 4: MINHA CONTA -->
-        <div id="view-account" class="view-section">
-            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
-            </button>
-            <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Meus Dados</h2>
-                <form id="account-form" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">Nome</label><input type="text" id="acc-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
-                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">CPF/CNPJ</label><input type="text" id="acc-cpf" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskCpfCnpj(this)"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">E-mail</label><input type="email" id="acc-email" class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" readonly></div>
-                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">Celular</label><input type="tel" id="acc-phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskPhone(this)"></div>
-                    </div>
-                    <div class="border-t pt-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">CEP</label><input type="text" id="acc-cep" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" onblur="buscarCEPAccount(this.value)"></div>
-                            <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1">Rua</label><input type="text" id="acc-address" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none"></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Número</label><input type="text" id="acc-number" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Bairro</label><input type="text" id="acc-bairro" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none"></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Cidade</label><input type="text" id="acc-city" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none"></div>
-                        </div>
-                        <div><label class="block text-xs font-semibold text-gray-500 mb-1">Complemento</label><input type="text" id="acc-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
-                    </div>
-                    <button type="button" onclick="saveAccountData()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition shadow-md mt-4">Salvar Dados</button>
-                </form>
-            </div>
-        </div>
-    </main>
-
-    <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
-        <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.</div>
-    </footer>
-
-    <div id="toast">Item adicionado ao carrinho!</div>
-
-    <script>
-        // --- 1. CONFIGURAÇÃO ---
-        const db = [
-            { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
-            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
-            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
-        ];
-
-        const fees = { PIX: 0, DEBIT_CARD: 0, CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 } };
-
-        let cart = [];
-        let currentItem = null;
-        let currentQty = 1;
-        let currentUser = null;
-
-        function init() {
-            renderCatalog();
-            updateCartIcon();
-            if (window.netlifyIdentity) {
-                window.netlifyIdentity.on("init", user => { currentUser = user; updateAuthUI(); });
-                window.netlifyIdentity.on("login", user => { currentUser = user; updateAuthUI(); netlifyIdentity.close(); });
-                window.netlifyIdentity.on("logout", () => { currentUser = null; updateAuthUI(); router('home'); });
-            }
-        }
-
-        function updateAuthUI() {
-            const container = document.getElementById('auth-buttons');
-            const msgLogin = document.getElementById('login-required-msg');
-            const formCustomer = document.getElementById('customer-form');
-            const btnCheckout = document.getElementById('btn-checkout');
-            const msgDataSource = document.getElementById('data-source-msg');
-
-            if (currentUser) {
-                container.innerHTML = `<button onclick="router('account')" class="text-gray-600 hover:text-teal-600 mr-4 font-bold">Minha Conta</button><span class="mr-3 text-sm text-gray-500">|</span><button onclick="netlifyIdentity.logout()" class="text-red-500 hover:underline">Sair</button>`;
-                if(msgLogin) msgLogin.classList.add('hidden');
-                if(formCustomer) formCustomer.classList.remove('hidden');
-                if(btnCheckout) btnCheckout.disabled = false;
-                
-                const meta = currentUser.user_metadata || {};
-                if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
-                document.getElementById('cust-email').value = currentUser.email;
-                if(meta.cpf) document.getElementById('cust-cpf').value = meta.cpf;
-                if(meta.phone) document.getElementById('cust-phone').value = meta.phone;
-                if(meta.cep) document.getElementById('cust-cep').value = meta.cep;
-                if(meta.address) document.getElementById('cust-address').value = meta.address;
-                if(meta.number) document.getElementById('cust-number').value = meta.number;
-                if(meta.bairro) document.getElementById('cust-bairro').value = meta.bairro;
-                if(meta.city) document.getElementById('cust-city').value = meta.city;
-                if(meta.comp) document.getElementById('cust-comp').value = meta.comp;
-                
-                if(msgDataSource && meta.cpf) {
-                    msgDataSource.textContent = "Preenchido Automaticamente";
-                    msgDataSource.classList.remove('bg-gray-100', 'text-gray-500');
-                    msgDataSource.classList.add('bg-green-100', 'text-green-700');
-                }
-
-                if(document.getElementById('acc-email')) {
-                    document.getElementById('acc-email').value = currentUser.email;
-                    document.getElementById('acc-name').value = meta.full_name || '';
-                    document.getElementById('acc-cpf').value = meta.cpf || '';
-                    document.getElementById('acc-phone').value = meta.phone || '';
-                    document.getElementById('acc-cep').value = meta.cep || '';
-                    document.getElementById('acc-address').value = meta.address || '';
-                    document.getElementById('acc-number').value = meta.number || '';
-                    document.getElementById('acc-bairro').value = meta.bairro || '';
-                    document.getElementById('acc-city').value = meta.city || '';
-                    document.getElementById('acc-comp').value = meta.comp || '';
-                }
-            } else {
-                container.innerHTML = `<button onclick="netlifyIdentity.open('login')" class="text-teal-600 hover:text-teal-800 mr-4 font-bold">Entrar</button><button onclick="netlifyIdentity.open('signup')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition font-bold">Cadastro</button>`;
-                if(msgLogin) msgLogin.classList.remove('hidden');
-                if(formCustomer) formCustomer.classList.add('hidden');
-                if(btnCheckout) btnCheckout.disabled = true;
-            }
-        }
-
-        function saveAccountData() {
-            if (!currentUser) return;
-            const btn = document.querySelector('#account-form button');
-            const originalText = btn.innerText;
-            btn.innerText = "Salvando...";
-            btn.disabled = true;
-
-            const newData = {
-                full_name: document.getElementById('acc-name').value,
-                cpf: document.getElementById('acc-cpf').value,
-                phone: document.getElementById('acc-phone').value,
-                cep: document.getElementById('acc-cep').value,
-                address: document.getElementById('acc-address').value,
-                number: document.getElementById('acc-number').value,
-                bairro: document.getElementById('acc-bairro').value,
-                city: document.getElementById('acc-city').value,
-                comp: document.getElementById('acc-comp').value
+        const fetchAsaas = async (endpoint, method, bodyContent) => {
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json', 'access_token': API_KEY }
             };
+            if (bodyContent) options.body = JSON.stringify(bodyContent);
 
-            currentUser.update({ data: newData }).then(user => { currentUser = user; showToast("Dados salvos!"); btn.innerText = originalText; btn.disabled = false; }).catch(err => { console.error(err); alert("Erro ao salvar."); btn.innerText = originalText; btn.disabled = false; });
-        }
+            const response = await fetch(`${API_URL}${endpoint}`, options);
+            const json = await response.json();
 
-        function router(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            window.scrollTo(0,0);
-            if (viewName === 'cart' || viewName === 'account') updateAuthUI();
-            if (viewName === 'cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
-        }
-
-        function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-5 flex flex-col group h-full"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight">${i.name}</h3><div class="mt-auto pt-4 flex justify-between items-center"><span class="font-bold text-teal-700">R$ ${i.price.toFixed(2).replace('.', ',')}</span><span class="text-xs text-gray-400 font-medium group-hover:text-teal-600">Ver detalhes →</span></div></div>`});c.innerHTML+=`<div><div class="flex items-center gap-3 mb-6"><div class="h-8 w-1 bg-teal-500 rounded-full"></div><h2 class="text-2xl font-bold text-gray-800">${s.title}</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${h}</div></div>`})}
-        function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
-        function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
-        function showToast(m){const t=document.getElementById("toast");t.innerHTML=`<i class="fa-solid fa-check-circle mr-2"></i> ${m}`;t.className="show";setTimeout(()=>t.className="",3000)}
-        function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!");}
-        function updateCartIcon(){document.getElementById('cart-count').textContent=cart.reduce((a,i)=>a+i.qty,0)}
-        function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon()}
-        function renderCart(){const c=document.getElementById('cart-items-container');c.innerHTML='';if(cart.length===0){c.innerHTML='<div class="text-center py-10 text-gray-400">Vazio</div>'}else{cart.forEach((i,idx)=>{c.innerHTML+=`<div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg"><div class="flex items-center gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-xs text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-sm text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`});}calculateTotal()}
-        
-        function maskCpfCnpj(i){ let v=i.value.replace(/\D/g,""); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
-        function maskPhone(i){i.value=i.value.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2").substring(0,15)}
-        async function buscarCEP(cep) { cep=cep.replace(/\D/g,'');if(cep.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const d=await r.json();if(!d.erro){document.getElementById('cust-address').value=d.logradouro;document.getElementById('cust-bairro').value=d.bairro;document.getElementById('cust-city').value=d.localidade+' - '+d.uf;document.getElementById('cust-number').focus()}else{alert('CEP não encontrado')}}catch(e){console.error(e)}}
-        async function buscarCEPAccount(cep) { cep=cep.replace(/\D/g,'');if(cep.length!==8)return;try{const r=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const d=await r.json();if(!d.erro){document.getElementById('acc-address').value=d.logradouro;document.getElementById('acc-bairro').value=d.bairro;document.getElementById('acc-city').value=d.localidade+' - '+d.uf;document.getElementById('acc-number').focus()}}catch(e){console.error(e)}}
-
-        function updatePaymentUI() {
-            const m = document.querySelector('input[name="payment_method"]:checked').value;
-            const w = document.getElementById('installments-wrapper');
-            const s = document.getElementById('installments');
-            if(m==='CREDIT_CARD'){
-                w.classList.remove('hidden');
-                const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
-                s.innerHTML='';
-                for(let i=1;i<=6;i++){
-                    const r=fees.CREDIT_CARD[i]||0; const t=base*(1+r); const p=t/i;
-                    const o=document.createElement('option'); o.value=i; o.text=`${i}x R$ ${p.toFixed(2).replace('.',',')} (Total: R$ ${t.toFixed(2).replace('.',',')})`;
-                    s.appendChild(o);
-                }
-            }else{w.classList.add('hidden')}
-            calculateTotal();
-        }
-
-        function calculateTotal() {
-            if(cart.length===0)return{finalTotal:0,method:'NONE',installments:1};
-            const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
-            const m=document.querySelector('input[name="payment_method"]:checked').value;
-            let final=base; let inst=1;
-            if(m==='CREDIT_CARD'){inst=parseInt(document.getElementById('installments').value)||1; final=base*(1+(fees.CREDIT_CARD[inst]||0))}
-            document.getElementById('cart-subtotal').textContent=`R$ ${base.toFixed(2).replace('.',',')}`;
-            document.getElementById('cart-total').textContent=`R$ ${final.toFixed(2).replace('.',',')}`;
-            return {finalTotal:final, method:m, installments:inst};
-        }
-
-        async function checkout() {
-            const form = document.getElementById('customer-form');
-            if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
-            if(cart.length===0)return;
-
-            const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
-            btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
-
-            const {finalTotal,method,installments} = calculateTotal();
-            const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ')+` (${method})`;
-
-            const customer = {
-                name: document.getElementById('cust-name').value,
-                cpf: document.getElementById('cust-cpf').value.replace(/\D/g,''),
-                email: document.getElementById('cust-email').value,
-                phone: document.getElementById('cust-phone').value.replace(/\D/g,''),
-                cep: document.getElementById('cust-cep').value.replace(/\D/g,''),
-                address: document.getElementById('cust-address').value,
-                addressNumber: document.getElementById('cust-number').value,
-                complement: document.getElementById('cust-comp').value,
-                bairro: document.getElementById('cust-bairro').value
-            };
-
-            let billingTypeAPI = 'UNDEFINED';
-            if(method==='PIX') billingTypeAPI='PIX';
-            if(method==='CREDIT_CARD') billingTypeAPI='CREDIT_CARD';
-
-            try {
-                const res = await fetch('/.netlify/functions/create_payment', {
-                    method: 'POST', headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ customer, payment: { value: finalTotal.toFixed(2), description: `Hub: ${desc}`, billingType: billingTypeAPI, installmentCount: installments } })
-                });
-                const d = await res.json();
-                if(res.ok && d.paymentUrl) window.location.href=d.paymentUrl;
-                else throw new Error(d.error||'Erro na criação.');
-            } catch(e){
-                console.error(e); alert("Erro: "+e.message); btn.innerHTML=txt; btn.disabled=false;
+            if (!response.ok) {
+                const errorMsg = json.errors && json.errors[0] ? json.errors[0].description : 'Erro na API Asaas';
+                throw new Error(`${errorMsg}`); // Mensagem limpa para o alerta
             }
+            return json;
+        };
+
+        // 1. Buscar/Criar Cliente
+        let customerId = null;
+        const cpfLimpo = customer.cpf.replace(/\D/g, '');
+        const searchRes = await fetchAsaas(`/customers?cpfCnpj=${cpfLimpo}`, 'GET');
+
+        if (searchRes.data && searchRes.data.length > 0) {
+            customerId = searchRes.data[0].id;
+        } else {
+            const newCustomer = await fetchAsaas('/customers', 'POST', {
+                name: customer.name,
+                cpfCnpj: cpfLimpo,
+                email: customer.email,
+                mobilePhone: customer.phone,
+                address: customer.address,
+                addressNumber: customer.addressNumber,
+                complement: customer.complement,
+                province: customer.bairro,
+                postalCode: customer.cep
+            });
+            customerId = newCustomer.id;
         }
 
-        init();
-    </script>
-</body>
-</html>
+        // 2. Preparar Cobrança
+        const today = new Date();
+        today.setDate(today.getDate() + 2);
+        const dueDate = today.toISOString().split('T')[0];
+
+        // Validar BillingType (Evita erro de tipo inválido)
+        let validBillingType = 'UNDEFINED';
+        if (payment.billingType === 'PIX') validBillingType = 'PIX';
+        if (payment.billingType === 'CREDIT_CARD') validBillingType = 'CREDIT_CARD';
+        // BOLETO e DEBIT_CARD caem em UNDEFINED para evitar rejeição da API
+
+        const paymentPayload = {
+            customer: customerId,
+            billingType: validBillingType,
+            value: parseFloat(payment.value),
+            dueDate: dueDate,
+            description: payment.description
+        };
+
+        // Parcelamento (Apenas se Crédito e > 1x)
+        if (validBillingType === 'CREDIT_CARD' && payment.installmentCount > 1) {
+            paymentPayload.installmentCount = payment.installmentCount;
+            paymentPayload.installmentValue = parseFloat(payment.value) / payment.installmentCount;
+        }
+
+        // 3. Criar Cobrança
+        const paymentRes = await fetchAsaas('/payments', 'POST', paymentPayload);
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({ paymentUrl: paymentRes.invoiceUrl })
+        };
+
+    } catch (error) {
+        console.error('Erro Backend:', error);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: error.message || "Erro interno" })
+        };
+    }
+};
 ```
 ```eof
