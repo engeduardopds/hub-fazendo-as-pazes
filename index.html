@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- CSS: Tailwind e FontAwesome (Links Limpos) -->
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap)" rel="stylesheet">
+    <!-- CSS Limpo e Verificado -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- Netlify Identity -->
-    <script type="text/javascript" src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)"></script>
+    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -77,36 +77,39 @@
             </div>
 
             <div class="flex items-center gap-6">
-                <!-- Login/Conta -->
+                 <!-- Login/Conta -->
                 <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4"></div>
                 
-                <!-- Carrinho -->
+                <!-- Ícone do Carrinho -->
                 <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
+                    <!-- Contador -->
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main -->
+    <!-- Conteúdo Principal -->
     <main class="flex-grow container mx-auto px-6 py-8 max-w-6xl">
-        
-        <!-- VIEW 1: HOME (CATÁLOGO EM GRADE) -->
+
+        <!-- VIEW 1: HOME (CATÁLOGO EM GRADE DE QUADRADOS) -->
         <div id="view-home" class="view-section active">
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Loja Oficial</h1>
                 <p class="text-gray-600">Explore nossos materiais e cursos.</p>
             </div>
-            <!-- Grid de Produtos -->
+            
+            <!-- Grid de Produtos (Injetado via JS) -->
             <div id="catalog-container" class="space-y-12"></div>
         </div>
 
-        <!-- VIEW 2: DETALHES -->
+        <!-- VIEW 2: DETALHES DO PRODUTO -->
         <div id="view-product" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2 font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
             </button>
+
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2">
                     <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-10 text-9xl">
@@ -116,10 +119,11 @@
                         <span id="detail-category" class="text-teal-600 font-bold text-xs uppercase tracking-wider mb-2">Categoria</span>
                         <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Produto</h2>
                         <p id="detail-desc" class="text-gray-600 mb-8 leading-relaxed">Descrição detalhada...</p>
+                        
                         <div class="mt-auto">
                             <div class="flex items-center justify-between mb-6">
                                 <span id="detail-price" class="text-3xl font-bold text-gray-900">R$ 0,00</span>
-                                <!-- Qty -->
+                                <!-- Seletor de Quantidade -->
                                 <div class="flex items-center border border-gray-300 rounded-lg">
                                     <button onclick="updateQty(-1)" class="px-3 py-1 hover:bg-gray-100">-</button>
                                     <span id="detail-qty" class="px-3 font-bold">1</span>
@@ -141,24 +145,27 @@
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
             </button>
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Finalizar Compra</h2>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- Coluna Esquerda -->
+                <!-- Coluna Esquerda: Carrinho e Dados -->
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- Resumo -->
+                    
+                    <!-- Resumo Carrinho -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
-                        <div id="cart-items-container" class="space-y-4"></div>
+                        <div id="cart-items-container" class="space-y-4">
+                            <!-- Itens do carrinho -->
+                        </div>
                     </div>
 
                     <!-- Aviso de Login -->
                     <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
-                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente.</p>
+                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
                         <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
                     </div>
 
-                    <!-- Formulário -->
+                    <!-- Formulário de Cliente -->
                     <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
@@ -173,6 +180,7 @@
                             <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
                             <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
                         </div>
+
                         <div class="border-t border-gray-100 pt-4 mt-2">
                             <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
@@ -284,13 +292,14 @@
     <div id="toast">Item adicionado ao carrinho!</div>
 
     <script>
-        // CONFIGURAÇÕES
+        // --- 1. BANCO DE DADOS ---
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
             { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
             { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
+        // TAXAS DE JUROS
         const fees = { PIX: 0, DEBIT_CARD: 0, CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 } };
 
         let cart = []; let currentItem = null; let currentQty = 1; let currentUser = null;
@@ -444,9 +453,10 @@
                 bairro: document.getElementById('cust-bairro').value
             };
 
+            // Mapping para API Asaas
             let billingTypeAPI = 'UNDEFINED';
             if(method==='PIX') billingTypeAPI='PIX';
-            if(method==='DEBIT_CARD') billingTypeAPI='UNDEFINED'; // Débito não tem API direta
+            if(method==='DEBIT_CARD') billingTypeAPI='UNDEFINED'; // Débito não tem API direta na criação de cobrança, mas aparece como opção se a conta Asaas aceitar
             if(method==='CREDIT_CARD') billingTypeAPI='CREDIT_CARD';
 
             try {
