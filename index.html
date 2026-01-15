@@ -88,8 +88,8 @@
                 <!-- Carrinho -->
                 <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <!-- Contador (Bolinha Vermelha) -->
-                    <span id="cart-count" class="absolute -bottom-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white z-10">0</span>
+                    <!-- Contador -->
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white z-10">0</span>
                 </div>
             </div>
         </div>
@@ -194,6 +194,7 @@
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
 
+                        <!-- Cupom -->
                         <div class="mb-6">
                             <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Cupom de Desconto</label>
                             <div class="flex gap-2">
@@ -202,6 +203,7 @@
                             </div>
                         </div>
 
+                        <!-- Opções -->
                         <div class="space-y-3 mb-6">
                             <label class="cursor-pointer block group">
                                 <input type="radio" name="payment_method" value="PIX" class="hidden payment-radio" onchange="updatePaymentUI()" checked>
@@ -226,9 +228,14 @@
                             </label>
                         </div>
 
+                        <!-- Totais -->
                         <div class="border-t border-gray-100 pt-4 mb-6">
-                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Frete</span><span class="text-green-600 font-medium">R$ 0,00</span></div>
-                            <div class="flex justify-between items-baseline text-gray-900"><span class="font-bold text-lg">Total</span><span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span></div>
+                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Valor dos Itens</span><span id="cart-subtotal">R$ 0,00</span></div>
+                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Frete</span><span class="text-green-600 font-medium" id="cart-shipping">R$ 0,00</span></div>
+                            <div class="flex justify-between items-baseline text-gray-900 border-t pt-2 mt-2">
+                                <span class="font-bold text-lg">Total</span>
+                                <span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span>
+                            </div>
                         </div>
                         
                         <button id="btn-checkout" onclick="checkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-lg transition shadow-md flex justify-center items-center gap-2">
@@ -314,7 +321,7 @@
         ];
 
         const fees = { PIX: 0, DEBIT_CARD: 0, CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 } };
-        const shippingCost = 0;
+        const shippingCost = 0.00;
 
         let cart = []; let currentItem = null; let currentQty = 1; let currentUser = null;
 
@@ -340,7 +347,7 @@
                             method: 'POST', body: JSON.stringify({ paymentId: order.id })
                         });
                         const data = await res.json();
-                        // Atualiza se mudou (Asaas retorna status em maiúsculas)
+                        // Asaas pode retornar: PENDING, RECEIVED, CONFIRMED, OVERDUE
                         if (data.status && data.status !== 'PENDING') {
                             order.status = data.status; 
                             updated = true;
@@ -365,26 +372,23 @@
             if(orders.length === 0) {
                 list.innerHTML = `<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><p class="text-gray-500">Sem pedidos.</p></div>`;
             } else {
-                // MAPA DE CORES E TEXTOS DE STATUS
+                // TRADUÇÃO DE STATUS (CORRIGIDA)
                 const statusColors = {
                     'PENDING': 'bg-yellow-100 text-yellow-800',
                     'CONFIRMED': 'bg-green-100 text-green-800',
                     'RECEIVED': 'bg-green-100 text-green-800',
                     'OVERDUE': 'bg-red-100 text-red-800',
-                    'REFUNDED': 'bg-purple-100 text-purple-800',
-                    'AWAITING_RISK_ANALYSIS': 'bg-blue-100 text-blue-800'
+                    'REFUNDED': 'bg-purple-100 text-purple-800'
                 };
                 const statusLabels = {
-                    'PENDING': 'Aguardando Pagamento',
-                    'CONFIRMED': 'Pagamento Confirmado',
-                    'RECEIVED': 'Pagamento Confirmado',
-                    'OVERDUE': 'Vencido',
-                    'REFUNDED': 'Reembolsado',
-                    'AWAITING_RISK_ANALYSIS': 'Em Análise'
+                    'PENDING': 'PAGAMENTO PENDENTE',
+                    'CONFIRMED': 'PAGAMENTO CONFIRMADO',
+                    'RECEIVED': 'PAGAMENTO CONFIRMADO',
+                    'OVERDUE': 'VENCIDO',
+                    'REFUNDED': 'REEMBOLSADO'
                 };
 
                 list.innerHTML = orders.map(o => {
-                    // Fallback para UNDEFINED
                     const safeStatus = o.status || 'PENDING';
                     const stColor = statusColors[safeStatus] || 'bg-gray-100 text-gray-800';
                     const stLabel = statusLabels[safeStatus] || safeStatus;
@@ -511,12 +515,30 @@
         }
 
         function calculateTotal() {
-            if(cart.length===0)return{finalTotal:0,method:'NONE',installments:1};
+            // CÁLCULO ROBUSTO: Garante que nunca é zero se houver itens
+            if(cart.length===0) { 
+                document.getElementById('cart-subtotal').textContent='R$ 0,00';
+                document.getElementById('cart-total').textContent='R$ 0,00';
+                return {finalTotal:0,method:'NONE',installments:1}; 
+            }
             const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
-            const m=document.querySelector('input[name="payment_method"]:checked').value;
+            
+            // Pega método selecionado (ou fallback)
+            const mEl=document.querySelector('input[name="payment_method"]:checked');
+            const m=mEl ? mEl.value : 'PIX';
+            
             let final=base; let inst=1;
-            if(m==='CREDIT_CARD'){inst=parseInt(document.getElementById('installments').value)||1; final=base*(1+(fees.CREDIT_CARD[inst]||0))}
+            if(m==='CREDIT_CARD'){
+                inst=parseInt(document.getElementById('installments').value)||1; 
+                final=base*(1+(fees.CREDIT_CARD[inst]||0));
+            } else {
+                final=base*(1+(fees[m]||0));
+            }
+            
+            final += shippingCost;
+            
             document.getElementById('cart-subtotal').textContent=`R$ ${base.toFixed(2).replace('.',',')}`;
+            document.getElementById('cart-shipping').textContent=`R$ ${shippingCost.toFixed(2).replace('.',',')}`;
             document.getElementById('cart-total').textContent=`R$ ${final.toFixed(2).replace('.',',')}`;
             return {finalTotal:final, method:m, installments:inst};
         }
@@ -524,12 +546,14 @@
         async function checkout() {
             const form = document.getElementById('customer-form');
             if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
-            if(cart.length===0)return;
+            if(cart.length===0) { showToast("Carrinho vazio!"); return; }
+
+            const {finalTotal, method, installments} = calculateTotal();
+            if (finalTotal <= 0) { alert("Erro de cálculo. Tente recarregar."); return; }
 
             const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
             btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
 
-            const {finalTotal,method,installments} = calculateTotal();
             const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ')+` (${method})`;
 
             const customer = {
@@ -556,6 +580,7 @@
                 });
                 const d = await res.json();
                 if(res.ok && d.paymentUrl) {
+                    // Salva com status PENDENTE (Amarelo)
                     saveOrder({ id: d.paymentId, desc: desc, val: finalTotal.toFixed(2).replace('.',','), date: new Date().toLocaleDateString(), link: d.paymentUrl, status: 'PENDING' });
                     cart = []; updateCartIcon(); saveCart();
                     window.open(d.paymentUrl, '_blank');
