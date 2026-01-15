@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (CDN Seguro) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -192,7 +192,7 @@
                 <!-- Coluna Direita: Pagamento -->
                 <div class="h-fit">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
-                        <h3 class="font-bold text-lg mb-4 text-gray-800">Resumo do Pedido</h3>
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
 
                         <!-- Cupom -->
                         <div class="mb-6">
@@ -230,15 +230,8 @@
 
                         <!-- Totais -->
                         <div class="border-t border-gray-100 pt-4 mb-6">
-                            <div class="flex justify-between mb-2 text-sm text-gray-600">
-                                <span>Valor dos Itens</span>
-                                <span id="cart-subtotal">R$ 0,00</span>
-                            </div>
-                            <!-- Substituído "Subtotal" por "Frete" conforme solicitado -->
-                            <div class="flex justify-between mb-2 text-sm text-gray-600">
-                                <span>Frete</span>
-                                <span class="text-green-600 font-medium">R$ 0,00</span>
-                            </div>
+                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Valor dos Itens</span><span id="cart-subtotal">R$ 0,00</span></div>
+                            <div class="flex justify-between mb-2 text-sm text-gray-600"><span>Frete</span><span class="text-green-600 font-medium">R$ 0,00</span></div>
                             <div class="flex justify-between items-baseline text-gray-900 border-t pt-2 mt-2">
                                 <span class="font-bold text-lg">Total</span>
                                 <span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span>
@@ -286,7 +279,7 @@
                 </form>
             </div>
         </div>
-        
+
         <!-- VIEW 5: MEUS PEDIDOS -->
         <div id="view-orders" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
@@ -302,6 +295,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- VIEW 6: SUCESSO DE COMPRA -->
+        <div id="view-success" class="view-section">
+            <div class="max-w-md mx-auto text-center py-12 bg-white rounded-xl shadow-lg border border-green-100 p-8 mt-12">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-check text-4xl text-green-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Compra Iniciada!</h2>
+                <p class="text-gray-600 mb-8 leading-relaxed">A página de pagamento segura foi aberta em uma <strong>nova janela</strong>. Assim que você finalizar o pagamento por lá, você receberá um e-mail de confirmação com seu acesso.</p>
+                <button onclick="router('home')" class="w-full bg-teal-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-teal-700 transition shadow-md">
+                    Voltar à Página Inicial
+                </button>
+            </div>
+        </div>
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
@@ -310,7 +317,6 @@
 
     <div id="toast">Item adicionado ao carrinho!</div>
 
-    <!-- LÓGICA DO SISTEMA -->
     <script>
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
@@ -318,40 +324,13 @@
             { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
         ];
 
-        // Taxas do Cartão
         const fees = { PIX: 0, DEBIT_CARD: 0, CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 } };
-        const shippingCost = 0; // Valor fixo do frete
+        const shippingCost = 0;
 
         let cart = []; let currentItem = null; let currentQty = 1; let currentUser = null;
 
-        // Persistência do carrinho
-        function loadCart() { const s=localStorage.getItem('hub_cart'); if(s) cart=JSON.parse(s); }
-        function saveCart() { localStorage.setItem('hub_cart', JSON.stringify(cart)); }
-
-        // Pedidos
-        function saveOrder(order) {
-            let orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-            orders.unshift(order);
-            localStorage.setItem('user_orders', JSON.stringify(orders));
-            loadOrders();
-        }
-        function loadOrders() {
-            const list = document.getElementById('orders-list');
-            if(!list) return;
-            const orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-            if(orders.length === 0) {
-                list.innerHTML = `<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><i class="fa-solid fa-box-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">Você ainda não tem pedidos.</p></div>`;
-            } else {
-                list.innerHTML = orders.map(o => `
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between gap-4">
-                        <div><span class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded uppercase tracking-wide">Pendente</span><h3 class="font-bold text-gray-900 mt-2">${o.desc}</h3><p class="text-sm text-gray-500">Data: ${o.date}</p></div>
-                        <div class="text-right"><p class="font-bold text-lg text-gray-900">R$ ${o.val}</p><a href="${o.link}" target="_blank" class="text-sm text-teal-600 hover:underline">Pagar Agora</a></div>
-                    </div>`).join('');
-            }
-        }
-
         function init() {
-            loadCart(); renderCatalog(); updateCartIcon(); loadOrders();
+            renderCatalog(); updateCartIcon();
             if (window.netlifyIdentity) {
                 window.netlifyIdentity.on("init", user => { currentUser = user; updateAuthUI(); });
                 window.netlifyIdentity.on("login", user => { currentUser = user; updateAuthUI(); netlifyIdentity.close(); });
@@ -430,14 +409,13 @@
             if(v==='cart'||v==='account'||v==='orders') updateAuthUI(); 
             if(v==='cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
         }
-        
         function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-5 flex flex-col group h-full"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight">${i.name}</h3><div class="mt-auto pt-4 flex justify-between items-center"><span class="font-bold text-teal-700">R$ ${i.price.toFixed(2).replace('.', ',')}</span><span class="text-xs text-gray-400 font-medium group-hover:text-teal-600">Ver detalhes →</span></div></div>`});c.innerHTML+=`<div><div class="flex items-center gap-3 mb-6"><div class="h-8 w-1 bg-teal-500 rounded-full"></div><h2 class="text-2xl font-bold text-gray-800">${s.title}</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${h}</div></div>`})}
         function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
         function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
         function showToast(m){const t=document.getElementById("toast");t.innerHTML=`<i class="fa-solid fa-check-circle mr-2"></i> ${m}`;t.className="show";setTimeout(()=>t.className="",3000)}
-        function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!"); saveCart();}
+        function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!");}
         function updateCartIcon(){ const q=cart.reduce((a,i)=>a+i.qty,0); const el=document.getElementById('cart-count'); el.textContent=q; if(q>0) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-        function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon();saveCart();}
+        function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon();}
         
         function renderCart(){
             const c=document.getElementById('cart-items-container');
@@ -449,7 +427,7 @@
                     c.innerHTML+=`<div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg"><div class="flex items-center gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-xs text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-sm text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`;
                 });
             }
-            calculateTotal(); // RECALCULAR TOTAL
+            calculateTotal(); 
         }
         
         function maskCpfCnpj(i){ let v=i.value.replace(/\D/g,""); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
@@ -483,7 +461,7 @@
             
             const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
             const mEl=document.querySelector('input[name="payment_method"]:checked');
-            const m=mEl ? mEl.value : 'PIX'; // Fallback
+            const m=mEl ? mEl.value : 'PIX'; 
             let final=base; let inst=1;
             
             if(m==='CREDIT_CARD'){
@@ -501,13 +479,35 @@
             return {finalTotal:final, method:m, installments:inst};
         }
 
+        // SALVA PEDIDO E ABRE NOVA ABA
+        function saveOrder(order) {
+            let orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+            orders.unshift(order);
+            localStorage.setItem('user_orders', JSON.stringify(orders));
+            loadOrders();
+        }
+        function loadOrders() {
+            const list = document.getElementById('orders-list');
+            if(!list) return;
+            const orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+            if(orders.length === 0) {
+                list.innerHTML = `<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><i class="fa-solid fa-box-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">Você ainda não tem pedidos.</p></div>`;
+            } else {
+                list.innerHTML = orders.map(o => `
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between gap-4">
+                        <div><span class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded uppercase tracking-wide">Pendente</span><h3 class="font-bold text-gray-900 mt-2">${o.desc}</h3><p class="text-sm text-gray-500">Data: ${o.date}</p></div>
+                        <div class="text-right"><p class="font-bold text-lg text-gray-900">R$ ${o.val}</p><a href="${o.link}" target="_blank" class="text-sm text-teal-600 hover:underline">Pagar Agora</a></div>
+                    </div>`).join('');
+            }
+        }
+
         async function checkout() {
             const form = document.getElementById('customer-form');
             if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
             if(cart.length===0) { showToast("Carrinho vazio!"); return; }
 
             const {finalTotal, method, installments} = calculateTotal();
-            if (finalTotal <= 0) { alert("Erro de cálculo. Tente recarregar a página."); return; }
+            if (finalTotal <= 0) { alert("Erro de cálculo."); return; }
 
             const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
             btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
@@ -538,8 +538,14 @@
                 });
                 const d = await res.json();
                 if(res.ok && d.paymentUrl) {
+                    // Salva pedido e abre nova aba
                     saveOrder({ desc: desc, val: finalTotal.toFixed(2).replace('.',','), date: new Date().toLocaleDateString(), link: d.paymentUrl });
-                    window.location.href=d.paymentUrl;
+                    
+                    window.open(d.paymentUrl, '_blank');
+                    
+                    // Limpa carrinho e mostra sucesso na tela original
+                    cart = []; updateCartIcon(); 
+                    router('success');
                 } else {
                     throw new Error(d.error||(d.details?d.details:'Erro na criação do pagamento.'));
                 }
