@@ -88,8 +88,8 @@
                 <!-- Carrinho -->
                 <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <!-- Contador -->
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white z-10">0</span>
+                    <!-- Contador (Bolinha Vermelha) -->
+                    <span id="cart-count" class="absolute -bottom-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white z-10">0</span>
                 </div>
             </div>
         </div>
@@ -529,10 +529,11 @@
             
             let final=base; let inst=1;
             if(m==='CREDIT_CARD'){
-                inst=parseInt(document.getElementById('installments').value)||1; 
-                final=base*(1+(fees.CREDIT_CARD[inst]||0));
+                const instEl = document.getElementById('installments');
+                inst = instEl && instEl.value ? parseInt(instEl.value) : 1;
+                final = base*(1+(fees.CREDIT_CARD[inst]||0));
             } else {
-                final=base*(1+(fees[m]||0));
+                final = base*(1+(fees[m]||0));
             }
             
             final += shippingCost;
@@ -548,8 +549,9 @@
             if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
             if(cart.length===0) { showToast("Carrinho vazio!"); return; }
 
+            // Recalcula para garantir valor correto
             const {finalTotal, method, installments} = calculateTotal();
-            if (finalTotal <= 0) { alert("Erro de cálculo. Tente recarregar."); return; }
+            if (finalTotal <= 0) { alert("Erro de cálculo."); return; }
 
             const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
             btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
@@ -584,6 +586,11 @@
                     saveOrder({ id: d.paymentId, desc: desc, val: finalTotal.toFixed(2).replace('.',','), date: new Date().toLocaleDateString(), link: d.paymentUrl, status: 'PENDING' });
                     cart = []; updateCartIcon(); saveCart();
                     window.open(d.paymentUrl, '_blank');
+                    
+                    // RESET DO BOTÃO (Correção Importante)
+                    btn.innerHTML = `<span>Ir para Pagamento</span> <i class="fa-solid fa-lock"></i>`;
+                    btn.disabled = false;
+                    
                     router('success');
                 } else { throw new Error(d.error||'Erro na criação.'); }
             } catch(e){
