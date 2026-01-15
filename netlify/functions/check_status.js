@@ -6,21 +6,21 @@ exports.handler = async function(event, context) {
     };
 
     if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
-    if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
+    if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método não permitido' }) };
 
     try {
         const { paymentId } = JSON.parse(event.body);
-        const API_KEY = process.env.ASAAS_API_KEY;
-        const API_URL = `https://sandbox.asaas.com/api/v3/payments/${paymentId}`;
+        if (!paymentId) throw new Error('Payment ID ausente.');
 
-        const response = await fetch(API_URL, {
+        const API_KEY = process.env.ASAAS_API_KEY;
+        const response = await fetch(`https://sandbox.asaas.com/api/v3/payments/${paymentId}`, {
             method: 'GET',
             headers: { 'access_token': API_KEY }
         });
 
         const data = await response.json();
-
-        // Status possíveis do Asaas: PENDING, RECEIVED, CONFIRMED, OVERDUE, REFUNDED...
+        
+        // Retorna o status oficial (PENDING, RECEIVED, CONFIRMED, OVERDUE)
         return {
             statusCode: 200,
             headers,
@@ -30,4 +30,4 @@ exports.handler = async function(event, context) {
     } catch (error) {
         return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
     }
-}
+};
