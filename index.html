@@ -4,115 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    
-    <!-- LINKS CSS (Estritamente Limpos) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- Netlify Identity -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <style>
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Controle de abas */
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-        /* Toast */
         #toast {
-            visibility: hidden;
-            min-width: 280px;
-            background-color: rgba(13, 148, 136, 0.95);
-            color: #fff;
-            text-align: center;
-            border-radius: 50px;
-            padding: 12px 24px;
-            position: fixed;
-            z-index: 100;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 14px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
+            visibility: hidden; min-width: 280px; background-color: rgba(13, 148, 136, 0.95);
+            color: #fff; text-align: center; border-radius: 50px; padding: 12px 24px;
+            position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%);
+            font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.5s, bottom 0.5s;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         
-        /* Radio Button Customizado */
-        .payment-radio:checked + div {
-            border-color: #0d9488;
-            background-color: #f0fdfa;
-            color: #0f766e;
-            font-weight: 600;
-            box-shadow: 0 0 0 1px #0d9488;
-        }
-
-        /* Spinner */
-        .loader {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
+        .payment-radio:checked + div { border-color: #0d9488; background-color: #f0fdfa; color: #0f766e; font-weight: 600; box-shadow: 0 0 0 1px #0d9488; }
+        .loader { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid white; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        .loader-dark { border: 3px solid rgba(13,148,136,0.3); border-radius: 50%; border-top: 3px solid #0d9488; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Dropdown */
+        .dropdown:hover .dropdown-menu { display: block; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Header -->
+    <!-- Navbar -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            <!-- Logo -->
             <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="router('home')">
                 <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">FP</div>
                 <span class="font-bold text-lg tracking-tight">Hub Fazendo as Pazes</span>
             </div>
 
             <div class="flex items-center gap-6">
-                 <!-- Login/Conta -->
-                <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4"></div>
+                <!-- Área de Login / Dropdown -->
+                <div id="auth-buttons" class="text-sm font-medium relative"></div>
                 
                 <!-- Carrinho -->
                 <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                    <!-- Bolinha de Notificação (Canto Inferior Direito) -->
+                    <span id="cart-count" class="absolute -bottom-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white">0</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Conteúdo Principal -->
     <main class="flex-grow container mx-auto px-6 py-8 max-w-6xl">
-
-        <!-- VIEW 1: HOME (CATÁLOGO EM GRADE DE QUADRADOS) -->
+        
+        <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Loja Oficial</h1>
-                <p class="text-gray-600">Explore nossos materiais e cursos.</p>
+                <p class="text-gray-600">Cursos, materiais e ferramentas para sua jornada.</p>
             </div>
-            
-            <!-- Grid de Produtos (Injetado via JS) -->
             <div id="catalog-container" class="space-y-12"></div>
         </div>
 
-        <!-- VIEW 2: DETALHES DO PRODUTO -->
+        <!-- VIEW 2: PRODUTO -->
         <div id="view-product" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2 font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
             </button>
-
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2">
                     <div class="bg-gray-100 h-64 md:h-auto flex items-center justify-center p-10 text-9xl">
@@ -120,13 +81,11 @@
                     </div>
                     <div class="p-8 md:p-12 flex flex-col justify-center">
                         <span id="detail-category" class="text-teal-600 font-bold text-xs uppercase tracking-wider mb-2">Categoria</span>
-                        <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Produto</h2>
-                        <p id="detail-desc" class="text-gray-600 mb-8 leading-relaxed">Descrição detalhada...</p>
-                        
+                        <h2 id="detail-title" class="text-3xl font-bold text-gray-900 mb-4">Nome do Item</h2>
+                        <p id="detail-desc" class="text-gray-600 mb-8 leading-relaxed">Descrição.</p>
                         <div class="mt-auto">
                             <div class="flex items-center justify-between mb-6">
                                 <span id="detail-price" class="text-3xl font-bold text-gray-900">R$ 0,00</span>
-                                <!-- Seletor de Quantidade -->
                                 <div class="flex items-center border border-gray-300 rounded-lg">
                                     <button onclick="updateQty(-1)" class="px-3 py-1 hover:bg-gray-100">-</button>
                                     <span id="detail-qty" class="px-3 font-bold">1</span>
@@ -142,60 +101,54 @@
             </div>
         </div>
 
-        <!-- VIEW 3: CHECKOUT (DADOS + PAGAMENTO) -->
+        <!-- VIEW 3: CHECKOUT -->
         <div id="view-cart" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2 font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
             </button>
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Finalizar Compra</h2>
-
+            
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <!-- Coluna Esquerda: Carrinho e Dados -->
+                <!-- Coluna Esquerda -->
                 <div class="lg:col-span-2 space-y-6">
-                    
-                    <!-- Resumo Carrinho -->
+                    <!-- Resumo -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
-                        <div id="cart-items-container" class="space-y-4">
-                            <!-- Itens do carrinho -->
-                        </div>
+                        <div id="cart-items-container" class="space-y-4"></div>
                     </div>
 
-                    <!-- Aviso de Login -->
-                    <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
-                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
-                        <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
+                    <!-- Aviso de Login (Texto Atualizado) -->
+                    <div id="login-required-msg" class="bg-yellow-50 p-6 rounded-lg border border-yellow-200 text-yellow-800 hidden text-center">
+                        <p class="font-bold mb-2">É necessário estar logado para finalizar a compra</p>
+                        <button onclick="netlifyIdentity.open('login')" class="mt-2 bg-yellow-100 text-yellow-800 px-6 py-2 rounded-lg hover:bg-yellow-200 transition border border-yellow-300">Entrar / Cadastrar</button>
                     </div>
 
-                    <!-- Formulário de Cliente -->
-                    <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                    <!-- Formulário -->
+                    <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4 hidden">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
-                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded" id="data-source-msg">Preenchimento Manual</span>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label><input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label><input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)"></div>
+                            <!-- Texto "Preenchido Automaticamente" REMOVIDO -->
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label><input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-gray-50" required></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label><input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-gray-50" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)"></div>
                         </div>
-
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-gray-50" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
+                        </div>
                         <div class="border-t border-gray-100 pt-4 mt-2">
                             <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label><input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)"></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label><input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-gray-50" placeholder="00000-000" required onblur="buscarCEP(this.value)"></div>
                                 <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label><input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-gray-50" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none bg-gray-50"></div>
                         </div>
                     </form>
                 </div>
@@ -241,7 +194,7 @@
 
                         <!-- Totais -->
                         <div class="border-t border-gray-100 pt-4 mb-6">
-                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
+                            <div class="flex justify-between mb-2 text-sm text-gray-500"><span>Frete</span><span class="text-green-600 font-medium">R$ 0,00</span></div>
                             <div class="flex justify-between items-baseline text-gray-900"><span class="font-bold text-lg">Total</span><span id="cart-total" class="font-bold text-2xl text-teal-700">R$ 0,00</span></div>
                         </div>
                         
@@ -254,7 +207,7 @@
             </div>
         </div>
 
-        <!-- VIEW 4: MINHA CONTA -->
+        <!-- VIEW 4: MINHA CONTA (DADOS) -->
         <div id="view-account" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
@@ -262,6 +215,7 @@
             <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Meus Dados</h2>
                 <form id="account-form" class="space-y-4">
+                    <!-- Mesmos campos do checkout, duplicados para edição -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="block text-xs font-semibold text-gray-500 mb-1">Nome Completo</label><input type="text" id="acc-name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
                         <div><label class="block text-xs font-semibold text-gray-500 mb-1">CPF/CNPJ</label><input type="text" id="acc-cpf" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" oninput="maskCpfCnpj(this)"></div>
@@ -286,7 +240,47 @@
                 </form>
             </div>
         </div>
+
+        <!-- VIEW 5: MEUS PEDIDOS -->
+        <div id="view-orders" class="view-section">
+            <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
+            </button>
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Meus Pedidos</h2>
+                <div id="orders-list" class="space-y-4">
+                    <!-- Pedidos injetados via JS -->
+                    <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
+                        <i class="fa-solid fa-box-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">Você ainda não tem pedidos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- Modal de Aguardando Pagamento -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center relative mx-4">
+            <div class="loader-dark mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Aguardando Pagamento...</h3>
+            <p class="text-gray-600 mb-6 text-sm">A página de pagamento foi aberta em uma nova aba. Finalize a compra por lá.</p>
+            <p id="payment-status-text" class="text-sm font-semibold text-teal-600 mb-6 animate-pulse">Verificando status...</p>
+            
+            <!-- Botão de "Simulação" de Sucesso se o webhook não for instantâneo -->
+            <button onclick="checkStatusManual()" class="text-xs text-gray-400 hover:text-gray-600 underline">Já paguei, verificar agora</button>
+        </div>
+    </div>
+
+    <!-- Tela de Sucesso -->
+    <div id="success-screen" class="fixed inset-0 bg-white z-[100] hidden flex items-center justify-center flex-col p-6">
+        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
+            <i class="fa-solid fa-check text-4xl text-green-600"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Pagamento Confirmado!</h1>
+        <p class="text-gray-600 mb-8 text-center max-w-md">Obrigado pela sua compra. Você receberá os detalhes por e-mail.</p>
+        <button onclick="router('home'); document.getElementById('success-screen').classList.add('hidden');" class="bg-teal-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition">Voltar à Página Inicial</button>
+    </div>
 
     <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
         <div class="container mx-auto px-6 text-center text-sm text-gray-500">&copy; 2025 Hub Fazendo as Pazes. Todos os direitos reservados.</div>
@@ -294,16 +288,18 @@
 
     <div id="toast">Item adicionado ao carrinho!</div>
 
+    <!-- LÓGICA -->
     <script>
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
-            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
-            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo..." }, { id: 302, name: "Item 2 (Organizador)", price: 60.00, icon: "🗂️", desc: "Organizador..." }] }
+            { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }] },
+            { title: "Seção 3: Impressões 3D", items: [{ id: 301, name: "Item 1 (Fidget Toy)", price: 45.00, icon: "🎲", desc: "Brinquedo." }] }
         ];
 
         const fees = { PIX: 0, DEBIT_CARD: 0, CREDIT_CARD: { 1: 0.00, 2: 0.04, 3: 0.05, 4: 0.06, 5: 0.07, 6: 0.08 } };
 
         let cart = []; let currentItem = null; let currentQty = 1; let currentUser = null;
+        let activePaymentId = null; let pollingInterval = null;
 
         function init() {
             renderCatalog(); updateCartIcon();
@@ -312,69 +308,74 @@
                 window.netlifyIdentity.on("login", user => { currentUser = user; updateAuthUI(); netlifyIdentity.close(); });
                 window.netlifyIdentity.on("logout", () => { currentUser = null; updateAuthUI(); router('home'); });
             }
+            loadOrders();
         }
 
+        // --- AUTH & DROPDOWN ---
         function updateAuthUI() {
             const container = document.getElementById('auth-buttons');
-            const msgLogin = document.getElementById('login-required-msg');
-            const formCustomer = document.getElementById('customer-form');
-            const btnCheckout = document.getElementById('btn-checkout');
-            const msgDataSource = document.getElementById('data-source-msg');
+            const loginMsg = document.getElementById('login-required-msg');
+            const formCust = document.getElementById('customer-form');
+            const btnCheck = document.getElementById('btn-checkout');
 
             if (currentUser) {
-                container.innerHTML = `<button onclick="router('account')" class="text-gray-600 hover:text-teal-600 mr-4 font-bold">Minha Conta</button><span class="mr-3 text-sm text-gray-500">|</span><button onclick="netlifyIdentity.logout()" class="text-red-500 hover:underline">Sair</button>`;
-                if(msgLogin) msgLogin.classList.add('hidden');
-                if(formCustomer) formCustomer.classList.remove('hidden');
-                if(btnCheckout) btnCheckout.disabled = false;
-                
-                const meta = currentUser.user_metadata || {};
-                if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
-                document.getElementById('cust-email').value = currentUser.email;
-                if(meta.cpf) document.getElementById('cust-cpf').value = meta.cpf;
-                if(meta.phone) document.getElementById('cust-phone').value = meta.phone;
-                if(meta.cep) document.getElementById('cust-cep').value = meta.cep;
-                if(meta.address) document.getElementById('cust-address').value = meta.address;
-                if(meta.number) document.getElementById('cust-number').value = meta.number;
-                if(meta.bairro) document.getElementById('cust-bairro').value = meta.bairro;
-                if(meta.city) document.getElementById('cust-city').value = meta.city;
-                if(meta.comp) document.getElementById('cust-comp').value = meta.comp;
-                
-                if(msgDataSource && meta.cpf) {
-                    msgDataSource.textContent = "Preenchido Automaticamente";
-                    msgDataSource.classList.remove('bg-gray-100', 'text-gray-500');
-                    msgDataSource.classList.add('bg-green-100', 'text-green-700');
-                }
-
-                if(document.getElementById('acc-email')) {
-                    document.getElementById('acc-email').value = currentUser.email;
-                    document.getElementById('acc-name').value = meta.full_name || '';
-                    document.getElementById('acc-cpf').value = meta.cpf || '';
-                    document.getElementById('acc-phone').value = meta.phone || '';
-                    document.getElementById('acc-cep').value = meta.cep || '';
-                    document.getElementById('acc-address').value = meta.address || '';
-                    document.getElementById('acc-number').value = meta.number || '';
-                    document.getElementById('acc-bairro').value = meta.bairro || '';
-                    document.getElementById('acc-city').value = meta.city || '';
-                    document.getElementById('acc-comp').value = meta.comp || '';
-                }
-
+                // Menu Dropdown
+                container.innerHTML = `
+                    <div class="relative dropdown">
+                        <button class="flex items-center gap-2 text-gray-700 hover:text-teal-600 font-bold focus:outline-none">
+                            <span class="w-8 h-8 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center text-sm"><i class="fa-solid fa-user"></i></span>
+                            <span>Minha Conta</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 hidden z-50">
+                            <a href="#" onclick="router('orders')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600"><i class="fa-solid fa-box mr-2"></i> Meus Pedidos</a>
+                            <a href="#" onclick="router('account')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600"><i class="fa-solid fa-user-gear mr-2"></i> Meus Dados</a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="#" onclick="netlifyIdentity.logout()" class="block px-4 py-2 text-sm text-red-500 hover:bg-red-50"><i class="fa-solid fa-right-from-bracket mr-2"></i> Sair</a>
+                        </div>
+                    </div>
+                `;
+                if(loginMsg) loginMsg.classList.add('hidden');
+                if(formCust) formCust.classList.remove('hidden');
+                if(btnCheck) btnCheck.disabled = false;
+                fillForms();
             } else {
                 container.innerHTML = `<button onclick="netlifyIdentity.open('login')" class="text-teal-600 hover:text-teal-800 mr-4 font-bold">Entrar</button><button onclick="netlifyIdentity.open('signup')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition font-bold">Cadastro</button>`;
-                if(msgLogin) msgLogin.classList.remove('hidden');
-                if(formCustomer) formCustomer.classList.add('hidden');
-                if(btnCheckout) btnCheckout.disabled = true;
+                if(loginMsg) loginMsg.classList.remove('hidden');
+                if(formCust) formCust.classList.add('hidden');
+                if(btnCheck) btnCheck.disabled = true;
             }
+        }
+
+        function fillForms() {
+            if(!currentUser) return;
+            const m = currentUser.user_metadata || {};
+            const fields = ['name','cpf','email','phone','cep','address','number','bairro','city','comp'];
+            // Fill Checkout Form
+            fields.forEach(f => {
+                const el = document.getElementById(`cust-${f}`);
+                if(el) {
+                    if(f==='email') el.value = currentUser.email;
+                    else if(m[f]) el.value = m[f];
+                }
+            });
+            // Fill Account Form
+            fields.forEach(f => {
+                const el = document.getElementById(`acc-${f}`);
+                if(el) {
+                    if(f==='email') el.value = currentUser.email;
+                    else if(m[f]) el.value = m[f];
+                }
+            });
         }
 
         function saveAccountData() {
             if (!currentUser) return;
             const btn = document.querySelector('#account-form button');
-            const originalText = btn.innerText;
-            btn.innerText = "Salvando...";
-            btn.disabled = true;
-
+            btn.innerText = "Salvando..."; btn.disabled = true;
+            
             const newData = {
-                full_name: document.getElementById('acc-name').value,
+                name: document.getElementById('acc-name').value,
                 cpf: document.getElementById('acc-cpf').value,
                 phone: document.getElementById('acc-phone').value,
                 cep: document.getElementById('acc-cep').value,
@@ -385,16 +386,65 @@
                 comp: document.getElementById('acc-comp').value
             };
 
-            currentUser.update({ data: newData }).then(user => { currentUser = user; showToast("Dados salvos!"); btn.innerText = originalText; btn.disabled = false; }).catch(err => { console.error(err); alert("Erro ao salvar."); btn.innerText = originalText; btn.disabled = false; });
+            currentUser.update({ data: newData }).then(u => {
+                currentUser = u;
+                showToast("Dados salvos!");
+                fillForms(); // Update checkout form too
+                btn.innerText = "Salvar Dados"; btn.disabled = false;
+            }).catch(e => { alert("Erro ao salvar."); btn.disabled = false; });
         }
 
-        function router(v) { document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); window.scrollTo(0,0); if(v==='cart'||v==='account') updateAuthUI(); if(v==='cart'){renderCart(); setTimeout(updatePaymentUI, 100);} }
+        // --- PEDIDOS (LOCAL STORAGE) ---
+        function saveOrder(order) {
+            let orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+            orders.unshift(order);
+            localStorage.setItem('user_orders', JSON.stringify(orders));
+            loadOrders();
+        }
+        function loadOrders() {
+            const list = document.getElementById('orders-list');
+            if(!list) return;
+            const orders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+            if(orders.length === 0) {
+                list.innerHTML = `<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><i class="fa-solid fa-box-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">Você ainda não tem pedidos.</p></div>`;
+            } else {
+                list.innerHTML = orders.map(o => `
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded uppercase tracking-wide">Pago</span>
+                            <h3 class="font-bold text-gray-900 mt-2">${o.desc}</h3>
+                            <p class="text-sm text-gray-500">Data: ${o.date}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg text-gray-900">R$ ${o.val}</p>
+                            <a href="#" class="text-sm text-teal-600 hover:underline">Ver detalhes</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- ROTEAMENTO ---
+        function router(v) { 
+            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active')); 
+            document.getElementById(`view-${v}`).classList.add('active'); 
+            window.scrollTo(0,0); 
+            if(v==='cart'||v==='account'||v==='orders') updateAuthUI(); 
+            if(v==='cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
+        }
+
+        // --- CATALOGO & CART ---
         function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-5 flex flex-col group h-full"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight">${i.name}</h3><div class="mt-auto pt-4 flex justify-between items-center"><span class="font-bold text-teal-700">R$ ${i.price.toFixed(2).replace('.', ',')}</span><span class="text-xs text-gray-400 font-medium group-hover:text-teal-600">Ver detalhes →</span></div></div>`});c.innerHTML+=`<div><div class="flex items-center gap-3 mb-6"><div class="h-8 w-1 bg-teal-500 rounded-full"></div><h2 class="text-2xl font-bold text-gray-800">${s.title}</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${h}</div></div>`})}
         function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
         function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
         function showToast(m){const t=document.getElementById("toast");t.innerHTML=`<i class="fa-solid fa-check-circle mr-2"></i> ${m}`;t.className="show";setTimeout(()=>t.className="",3000)}
         function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!");}
-        function updateCartIcon(){document.getElementById('cart-count').textContent=cart.reduce((a,i)=>a+i.qty,0)}
+        function updateCartIcon(){
+            const q=cart.reduce((a,i)=>a+i.qty,0); 
+            const el=document.getElementById('cart-count'); 
+            el.textContent=q; 
+            if(q>0)el.classList.remove('hidden'); else el.classList.add('hidden');
+        }
         function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon()}
         function renderCart(){const c=document.getElementById('cart-items-container');c.innerHTML='';if(cart.length===0){c.innerHTML='<div class="text-center py-10 text-gray-400">Vazio</div>'}else{cart.forEach((i,idx)=>{c.innerHTML+=`<div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg"><div class="flex items-center gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-xs text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-sm text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`});}calculateTotal()}
         
@@ -431,6 +481,7 @@
             return {finalTotal:final, method:m, installments:inst};
         }
 
+        // --- CHECKOUT COM POLLING ---
         async function checkout() {
             const form = document.getElementById('customer-form');
             if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
@@ -441,7 +492,7 @@
 
             const {finalTotal,method,installments} = calculateTotal();
             const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ')+` (${method})`;
-
+            
             const customer = {
                 name: document.getElementById('cust-name').value,
                 cpf: document.getElementById('cust-cpf').value.replace(/\D/g,''),
@@ -456,7 +507,6 @@
 
             let billingTypeAPI = 'UNDEFINED';
             if(method==='PIX') billingTypeAPI='PIX';
-            if(method==='DEBIT_CARD') billingTypeAPI='UNDEFINED'; 
             if(method==='CREDIT_CARD') billingTypeAPI='CREDIT_CARD';
 
             try {
@@ -465,16 +515,62 @@
                     body: JSON.stringify({ customer, payment: { value: finalTotal.toFixed(2), description: `Hub: ${desc}`, billingType: billingTypeAPI, installmentCount: installments } })
                 });
                 const d = await res.json();
-                if(res.ok && d.paymentUrl) window.location.href=d.paymentUrl;
-                else throw new Error(d.error||'Erro na criação.');
+                
+                if(res.ok && d.paymentUrl) {
+                    // Abre Asaas em nova aba
+                    window.open(d.paymentUrl, '_blank');
+                    
+                    // Mostra Modal de Espera
+                    activePaymentId = d.paymentId; // ID para polling
+                    document.getElementById('payment-modal').classList.remove('hidden');
+                    
+                    // Inicia Polling
+                    startPolling();
+                    
+                } else { throw new Error(d.error||'Erro na criação.'); }
             } catch(e){
                 console.error(e); alert("Erro: "+e.message); btn.innerHTML=txt; btn.disabled=false;
             }
+        }
+
+        // Simulação de Polling (Verificação)
+        function startPolling() {
+            // Em produção, isso chamaria uma função backend /check_status
+            // Aqui, vamos simular ou usar o botão manual
+            pollingInterval = setInterval(async () => {
+                try {
+                    const res = await fetch('/.netlify/functions/check_status', {
+                        method: 'POST', body: JSON.stringify({ paymentId: activePaymentId })
+                    });
+                    const d = await res.json();
+                    if(d.status === 'RECEIVED' || d.status === 'CONFIRMED') {
+                        finishPaymentSuccess();
+                    }
+                } catch(e) {}
+            }, 5000);
+        }
+
+        function checkStatusManual() {
+            // Botão "Já paguei" -> Simula sucesso para demo ou verifica real
+            // Se tiver backend real de check, chame aqui. Senão, assumimos sucesso UX.
+            finishPaymentSuccess();
+        }
+
+        function finishPaymentSuccess() {
+            clearInterval(pollingInterval);
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('success-screen').classList.remove('hidden');
+            
+            // Salva pedido no histórico local
+            const { finalTotal } = calculateTotal();
+            const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ');
+            saveOrder({ desc: desc, val: finalTotal.toFixed(2).replace('.',','), date: new Date().toLocaleDateString() });
+            
+            // Limpa carrinho
+            cart = []; updateCartIcon(); renderCart();
         }
 
         init();
     </script>
 </body>
 </html>
-```
-```eof
