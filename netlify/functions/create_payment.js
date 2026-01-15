@@ -87,4 +87,4 @@ exports.handler = async function(event, context) {
         console.error('Erro Backend:', error);
         return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
     }
-};
+}
