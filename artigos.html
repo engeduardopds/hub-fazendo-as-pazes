@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioteca de Artigos | Hub Fazendo as Pazes</title>
+    <!-- Tailwind CSS (Link Limpo) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome (Link Limpo) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
@@ -161,7 +164,7 @@
                                 <p class="font-bold text-gray-900">Download Gratuito</p>
                                 <p class="text-sm text-gray-500">Formato PDF • Acesso imediato</p>
                             </div>
-                            <a id="detail-download" href="#" target="_blank" class="bg-teal-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-teal-700 transition shadow-md flex items-center gap-2">
+                            <a id="detail-download" href="#" target="_blank" class="bg-teal-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-teal-700 transition shadow-md flex items-center gap-2" download>
                                 <i class="fa-solid fa-download"></i> Baixar Agora
                             </a>
                         </div>
@@ -178,21 +181,20 @@
 
     <script>
         // --- BANCO DE DADOS DE ARTIGOS ---
-        // Aqui você adiciona seus arquivos.
-        // categories: deve bater com os 'value' dos checkboxes no HTML (tdah, autismo, bipolaridade, ansiedade, rotina)
+        // Aqui configuramos os links para a pasta 'biblioteca/' do GitHub/Netlify
         const articlesDB = [
             {
                 id: 1,
                 title: "O Cérebro TDAH: Entendendo a Dopamina",
-                summary: "Um artigo científico traduzido para linguagem simples que explica por que a falta de dopamina afeta a motivação e o foco, e estratégias não-medicamentosas para lidar com isso.",
+                summary: "Um artigo científico traduzido para linguagem simples que explica por que a falta de dopamina afeta a motivação e o foco.",
                 categories: ["tdah"],
                 icon: "🧠",
-                file: "biblioteca/artigo-cerebro-tdah.pdf"
+                file: "biblioteca/artigo-cerebro-tdah.pdf" // Certifique-se que o arquivo existe nesta pasta no GitHub
             },
             {
                 id: 2,
                 title: "Guia de Sobrevivência para Crises de Ansiedade",
-                summary: "Técnicas de 'grounding' (aterramento) e respiração para utilizar no momento exato de uma crise de pânico ou ansiedade elevada.",
+                summary: "Técnicas de 'grounding' e respiração para utilizar no momento exato de uma crise de pânico.",
                 categories: ["ansiedade"],
                 icon: "🌬️",
                 file: "biblioteca/guia-ansiedade.pdf"
@@ -200,7 +202,7 @@
             {
                 id: 3,
                 title: "Rotina Visual para Autistas e TDAH",
-                summary: "Como criar quadros visuais que ajudam na organização temporal e reduzem a ansiedade do dia a dia. Inclui modelos para imprimir.",
+                summary: "Como criar quadros visuais que ajudam na organização temporal e reduzem a ansiedade.",
                 categories: ["autismo", "tdah", "rotina"],
                 icon: "📅",
                 file: "biblioteca/rotina-visual.pdf"
@@ -208,7 +210,7 @@
             {
                 id: 4,
                 title: "Bipolaridade x TDAH: As Diferenças",
-                summary: "Muitas vezes confundidos, estes dois diagnósticos têm particularidades importantes. Saiba diferenciar as oscilações de humor da impulsividade.",
+                summary: "Muitas vezes confundidos, estes dois diagnósticos têm particularidades importantes.",
                 categories: ["bipolaridade", "tdah"],
                 icon: "⚖️",
                 file: "biblioteca/bipolaridade-tdah.pdf"
@@ -216,7 +218,7 @@
             {
                 id: 5,
                 title: "Manual de Higiene do Sono",
-                summary: "Um passo a passo para regular o ciclo circadiano, essencial para quem sofre de transtornos de humor ou de atenção.",
+                summary: "Passo a passo para regular o ciclo circadiano e dormir melhor.",
                 categories: ["rotina", "ansiedade"],
                 icon: "💤",
                 file: "biblioteca/higiene-sono.pdf"
@@ -230,17 +232,13 @@
         }
 
         function filterArticles() {
-            // 1. Pegar categorias selecionadas
             const checkboxes = document.querySelectorAll('.filter-checkbox:checked');
             const selectedCategories = Array.from(checkboxes).map(cb => cb.value);
 
-            // 2. Filtrar DB
             const filtered = articlesDB.filter(artigo => {
-                // Se o artigo tiver Pelo MENOS UMA das categorias marcadas, ele aparece.
                 return artigo.categories.some(cat => selectedCategories.includes(cat));
             });
 
-            // 3. Renderizar
             renderGrid(filtered);
         }
 
@@ -262,7 +260,6 @@
             empty.classList.add('hidden');
 
             articles.forEach(artigo => {
-                // Cria as tags coloridas
                 const tagsHtml = artigo.categories.map(cat => 
                     `<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-teal-50 text-teal-700 border border-teal-100">${cat}</span>`
                 ).join('');
@@ -291,19 +288,16 @@
         }
 
         function openDetail(artigo) {
-            // Preenche os dados
             document.getElementById('detail-icon').textContent = artigo.icon;
             document.getElementById('detail-title').textContent = artigo.title;
             document.getElementById('detail-summary').textContent = artigo.summary;
             document.getElementById('detail-download').href = artigo.file;
 
-            // Tags na página de detalhe
             const tagsContainer = document.getElementById('detail-tags');
             tagsContainer.innerHTML = artigo.categories.map(cat => 
                 `<span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-white/90 text-teal-800 shadow-sm">${cat}</span>`
             ).join('');
 
-            // Troca a View
             document.getElementById('view-list').classList.add('hidden');
             document.getElementById('view-detail').classList.remove('hidden');
             window.scrollTo(0,0);
@@ -315,7 +309,6 @@
             window.scrollTo(0,0);
         }
 
-        // Inicia
         init();
 
     </script>
