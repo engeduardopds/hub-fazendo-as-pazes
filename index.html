@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- Tailwind CSS -->
+    <!-- CSS (Links Limpos) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- Netlify Identity -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -20,7 +18,7 @@
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-        /* Toast Notification */
+        /* Toast */
         #toast {
             visibility: hidden;
             min-width: 280px;
@@ -46,7 +44,7 @@
             bottom: 50px;
         }
         
-        /* Radio Customizado */
+        /* Radio */
         .payment-radio:checked + div {
             border-color: #0d9488;
             background-color: #f0fdfa;
@@ -65,6 +63,9 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Dropdown Fix */
+        .dropdown:hover .dropdown-menu { display: block; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -79,21 +80,23 @@
             </div>
 
             <div class="flex items-center gap-6">
-                <!-- Área de Login (Dropdown) -->
+                <!-- Login/Conta -->
                 <div id="auth-buttons" class="text-sm font-medium flex items-center gap-4 relative"></div>
                 
                 <!-- Carrinho -->
                 <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <span id="cart-count" class="absolute -bottom-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white">0</span>
+                    <!-- Contador Corrigido -->
+                    <span id="cart-count" class="absolute -bottom-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white z-10">0</span>
                 </div>
             </div>
         </div>
     </header>
 
+    <!-- Conteúdo Principal -->
     <main class="flex-grow container mx-auto px-6 py-8 max-w-6xl">
         
-        <!-- VIEW 1: HOME (CATÁLOGO EM GRADE) -->
+        <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
             <div class="text-center mb-12">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Loja Oficial</h1>
@@ -140,49 +143,47 @@
                 <i class="fa-solid fa-arrow-left"></i> Continuar comprando
             </button>
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Finalizar Compra</h2>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- Coluna Esquerda: Carrinho e Dados -->
+                <!-- Coluna Esquerda -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Itens no Carrinho</h3>
                         <div id="cart-items-container" class="space-y-4"></div>
                     </div>
 
-                    <!-- Aviso de Login -->
                     <div id="login-required-msg" class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-yellow-800 hidden">
-                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente e finalizar a compra.</p>
+                        <p>Por favor, faça <strong>login</strong> ou <strong>cadastro</strong> para preencher seus dados automaticamente.</p>
                         <button onclick="netlifyIdentity.open('login')" class="mt-2 text-teal-700 font-bold hover:underline">Entrar / Cadastrar Agora</button>
                     </div>
 
-                    <!-- Formulário de Cliente -->
                     <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
-                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded" id="data-source-msg">Preenchimento Manual</span>
+                            <!-- Texto removido conforme solicitado -->
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nome Completo</label><input type="text" id="cust-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label><input type="text" id="cust-cpf" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CPF ou CNPJ</label><input type="text" id="cust-cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="000.000.000-00" required oninput="maskCpfCnpj(this)"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">E-mail</label><input type="email" id="cust-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Celular</label><input type="tel" id="cust-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="(11) 99999-9999" required oninput="maskPhone(this)"></div>
                         </div>
                         <div class="border-t border-gray-100 pt-4 mt-2">
                             <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-location-dot text-teal-600"></i> Endereço</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label><input type="text" id="cust-cep" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)"></div>
-                                <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label><input type="text" id="cust-address" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">CEP</label><input type="text" id="cust-cep" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="00000-000" required onblur="buscarCEP(this.value)"></div>
+                                <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label><input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
                         </div>
                     </form>
                 </div>
@@ -274,7 +275,7 @@
             </div>
         </div>
 
-        <!-- VIEW 5: MEUS PEDIDOS -->
+        <!-- VIEW 5: PEDIDOS -->
         <div id="view-orders" class="view-section">
             <button onclick="router('home')" class="mb-6 text-sm text-gray-500 hover:text-teal-600 flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Voltar para a loja
@@ -298,7 +299,6 @@
     <div id="toast">Item adicionado ao carrinho!</div>
 
     <script>
-        // CONFIGURAÇÕES
         const db = [
             { title: "Seção 1: Cursos Online", items: [{ id: 101, name: "Item 1 (Curso TDAH)", price: 197.00, icon: "🎓", desc: "Descrição." }, { id: 102, name: "Item 2 (Curso Ansiedade)", price: 147.00, icon: "🧘‍♀️", desc: "Curso..." }] },
             { title: "Seção 2: E-books", items: [{ id: 201, name: "Item 1 (E-book Rotina)", price: 29.90, icon: "📚", desc: "Guia..." }, { id: 202, name: "Item 2 (Kit Planilhas)", price: 19.90, icon: "📊", desc: "Planilhas..." }] },
@@ -318,13 +318,11 @@
             }
         }
 
-        // --- AUTH COM DROPDOWN CORRIGIDO ---
         function updateAuthUI() {
             const container = document.getElementById('auth-buttons');
             const msgLogin = document.getElementById('login-required-msg');
             const formCustomer = document.getElementById('customer-form');
             const btnCheckout = document.getElementById('btn-checkout');
-            const msgDataSource = document.getElementById('data-source-msg');
 
             if (currentUser) {
                 container.innerHTML = `
@@ -349,34 +347,24 @@
                 if(btnCheckout) btnCheckout.disabled = false;
                 
                 const meta = currentUser.user_metadata || {};
-                if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
-                document.getElementById('cust-email').value = currentUser.email;
-                if(meta.cpf) document.getElementById('cust-cpf').value = meta.cpf;
-                if(meta.phone) document.getElementById('cust-phone').value = meta.phone;
-                if(meta.cep) document.getElementById('cust-cep').value = meta.cep;
-                if(meta.address) document.getElementById('cust-address').value = meta.address;
-                if(meta.number) document.getElementById('cust-number').value = meta.number;
-                if(meta.bairro) document.getElementById('cust-bairro').value = meta.bairro;
-                if(meta.city) document.getElementById('cust-city').value = meta.city;
-                if(meta.comp) document.getElementById('cust-comp').value = meta.comp;
+                const fields = ['name','cpf','email','phone','cep','address','number','bairro','city','comp'];
                 
-                if(msgDataSource && meta.cpf) {
-                    msgDataSource.textContent = "Preenchido Automaticamente";
-                    msgDataSource.classList.remove('bg-gray-100', 'text-gray-500');
-                    msgDataSource.classList.add('bg-green-100', 'text-green-700');
-                }
+                // Preenche formulário de Checkout
+                fields.forEach(f => {
+                    const el = document.getElementById(`cust-${f}`);
+                    if(el) {
+                        if(f==='email') el.value = currentUser.email;
+                        else if(m = meta[f]) el.value = m;
+                    }
+                });
 
+                // Preenche formulário Minha Conta
                 if(document.getElementById('acc-email')) {
                     document.getElementById('acc-email').value = currentUser.email;
-                    document.getElementById('acc-name').value = meta.full_name || '';
-                    document.getElementById('acc-cpf').value = meta.cpf || '';
-                    document.getElementById('acc-phone').value = meta.phone || '';
-                    document.getElementById('acc-cep').value = meta.cep || '';
-                    document.getElementById('acc-address').value = meta.address || '';
-                    document.getElementById('acc-number').value = meta.number || '';
-                    document.getElementById('acc-bairro').value = meta.bairro || '';
-                    document.getElementById('acc-city').value = meta.city || '';
-                    document.getElementById('acc-comp').value = meta.comp || '';
+                    fields.forEach(f => {
+                         const el = document.getElementById(`acc-${f}`);
+                         if(el && meta[f]) el.value = meta[f];
+                    });
                 }
 
             } else {
@@ -395,7 +383,7 @@
             btn.disabled = true;
 
             const newData = {
-                full_name: document.getElementById('acc-name').value,
+                name: document.getElementById('acc-name').value,
                 cpf: document.getElementById('acc-cpf').value,
                 phone: document.getElementById('acc-phone').value,
                 cep: document.getElementById('acc-cep').value,
@@ -406,10 +394,17 @@
                 comp: document.getElementById('acc-comp').value
             };
 
-            currentUser.update({ data: newData }).then(user => { currentUser = user; showToast("Dados salvos!"); btn.innerText = originalText; btn.disabled = false; }).catch(err => { console.error(err); alert("Erro ao salvar."); btn.innerText = originalText; btn.disabled = false; });
+            currentUser.update({ data: newData }).then(user => { currentUser = user; showToast("Dados salvos!"); btn.innerText = originalText; btn.disabled = false; updateAuthUI(); }).catch(err => { console.error(err); alert("Erro ao salvar."); btn.innerText = originalText; btn.disabled = false; });
         }
 
-        function router(v) { document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active')); document.getElementById(`view-${v}`).classList.add('active'); window.scrollTo(0,0); if(v==='cart'||v==='account'||v==='orders') updateAuthUI(); if(v==='cart'){renderCart(); setTimeout(updatePaymentUI, 100);} }
+        function router(v) { 
+            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active')); 
+            document.getElementById(`view-${v}`).classList.add('active'); 
+            window.scrollTo(0,0); 
+            if(v==='cart'||v==='account') updateAuthUI(); 
+            if(v==='cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
+        }
+        
         function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-5 flex flex-col group h-full"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight">${i.name}</h3><div class="mt-auto pt-4 flex justify-between items-center"><span class="font-bold text-teal-700">R$ ${i.price.toFixed(2).replace('.', ',')}</span><span class="text-xs text-gray-400 font-medium group-hover:text-teal-600">Ver detalhes →</span></div></div>`});c.innerHTML+=`<div><div class="flex items-center gap-3 mb-6"><div class="h-8 w-1 bg-teal-500 rounded-full"></div><h2 class="text-2xl font-bold text-gray-800">${s.title}</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${h}</div></div>`})}
         function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
         function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
@@ -442,25 +437,11 @@
         }
 
         function calculateTotal() {
-            if(cart.length===0) {
-                // Se carrinho vazio, zera totais e retorna
-                document.getElementById('cart-subtotal').textContent='R$ 0,00';
-                document.getElementById('cart-total').textContent='R$ 0,00';
-                return {finalTotal:0,method:'NONE',installments:1};
-            }
-            
+            if(cart.length===0) { document.getElementById('cart-subtotal').textContent='R$ 0,00'; document.getElementById('cart-total').textContent='R$ 0,00'; return {finalTotal:0,method:'NONE',installments:1}; }
             const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
             const m=document.querySelector('input[name="payment_method"]:checked').value;
             let final=base; let inst=1;
-            
-            if(m==='CREDIT_CARD'){
-                inst=parseInt(document.getElementById('installments').value)||1; 
-                final=base*(1+(fees.CREDIT_CARD[inst]||0));
-            } else {
-                // Pix ou Débito
-                final=base*(1+(fees[m]||0));
-            }
-            
+            if(m==='CREDIT_CARD'){inst=parseInt(document.getElementById('installments').value)||1; final=base*(1+(fees.CREDIT_CARD[inst]||0))}
             document.getElementById('cart-subtotal').textContent=`R$ ${base.toFixed(2).replace('.',',')}`;
             document.getElementById('cart-total').textContent=`R$ ${final.toFixed(2).replace('.',',')}`;
             return {finalTotal:final, method:m, installments:inst};
@@ -469,18 +450,15 @@
         async function checkout() {
             const form = document.getElementById('customer-form');
             if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
-            if(cart.length===0)return;
+            if(cart.length===0) { showToast("Carrinho vazio!"); return; }
 
-            // Recalcula para garantir que temos o valor mais recente
-            const {finalTotal,method,installments} = calculateTotal();
-            if(finalTotal <= 0) {
-                alert("Erro: Valor total inválido.");
-                return;
-            }
+            const {finalTotal} = calculateTotal();
+            if (finalTotal <= 0) { alert("Erro no cálculo do valor."); return; }
 
             const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
             btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
 
+            const { method, installments } = calculateTotal();
             const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ')+` (${method})`;
 
             const customer = {
@@ -507,7 +485,7 @@
                 });
                 const d = await res.json();
                 if(res.ok && d.paymentUrl) window.location.href=d.paymentUrl;
-                else throw new Error(d.error||'Erro na criação.');
+                else throw new Error(d.error||(d.details?d.details:'Erro na criação do pagamento.'));
             } catch(e){
                 console.error(e); alert("Erro: "+e.message); btn.innerHTML=txt; btn.disabled=false;
             }
