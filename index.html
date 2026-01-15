@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Fazendo as Pazes | Loja</title>
-    <!-- CSS (Links Limpos) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- Netlify Identity -->
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -86,7 +88,7 @@
                 <!-- Carrinho -->
                 <div class="relative cursor-pointer text-gray-500 hover:text-teal-600 transition" onclick="router('cart')">
                     <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <!-- Contador Corrigido -->
+                    <!-- Contador (Bolinha Vermelha) -->
                     <span id="cart-count" class="absolute -bottom-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white z-10">0</span>
                 </div>
             </div>
@@ -122,6 +124,7 @@
                         <div class="mt-auto">
                             <div class="flex items-center justify-between mb-6">
                                 <span id="detail-price" class="text-3xl font-bold text-gray-900">R$ 0,00</span>
+                                <!-- Seletor de Quantidade -->
                                 <div class="flex items-center border border-gray-300 rounded-lg">
                                     <button onclick="updateQty(-1)" class="px-3 py-1 hover:bg-gray-100">-</button>
                                     <span id="detail-qty" class="px-3 font-bold">1</span>
@@ -161,7 +164,6 @@
                     <form id="customer-form" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="font-bold text-lg text-teal-800">Seus Dados</h3>
-                            <!-- Texto removido conforme solicitado -->
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -179,11 +181,11 @@
                                 <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Rua</label><input type="text" id="cust-address" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
-                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Número</label><input type="text" id="cust-number" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Bairro</label><input type="text" id="cust-bairro" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
+                                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cidade</label><input type="text" id="cust-city" class="w-full px-4 py-2 border rounded-lg bg-gray-50 outline-none" required></div>
                             </div>
-                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
+                            <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Complemento</label><input type="text" id="cust-comp" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></div>
                         </div>
                     </form>
                 </div>
@@ -192,15 +194,6 @@
                 <div class="h-fit">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Pagamento</h3>
-
-                        <!-- Cupom -->
-                        <div class="mb-6">
-                            <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Cupom de Desconto</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="coupon-code" class="w-full px-3 py-2 text-sm border rounded focus:ring-teal-500" placeholder="Código">
-                                <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded text-sm font-medium transition">Aplicar</button>
-                            </div>
-                        </div>
 
                         <!-- Opções -->
                         <div class="space-y-3 mb-6">
@@ -309,7 +302,17 @@
 
         let cart = []; let currentItem = null; let currentQty = 1; let currentUser = null;
 
+        // Persistência: Carrega o carrinho do localStorage ao iniciar
+        function loadCart() {
+            const saved = localStorage.getItem('hub_cart');
+            if (saved) cart = JSON.parse(saved);
+        }
+        function saveCart() {
+            localStorage.setItem('hub_cart', JSON.stringify(cart));
+        }
+
         function init() {
+            loadCart();
             renderCatalog(); updateCartIcon();
             if (window.netlifyIdentity) {
                 window.netlifyIdentity.on("init", user => { currentUser = user; updateAuthUI(); });
@@ -349,7 +352,6 @@
                 const meta = currentUser.user_metadata || {};
                 const fields = ['name','cpf','email','phone','cep','address','number','bairro','city','comp'];
                 
-                // Preenche formulário de Checkout
                 fields.forEach(f => {
                     const el = document.getElementById(`cust-${f}`);
                     if(el) {
@@ -358,7 +360,6 @@
                     }
                 });
 
-                // Preenche formulário Minha Conta
                 if(document.getElementById('acc-email')) {
                     document.getElementById('acc-email').value = currentUser.email;
                     fields.forEach(f => {
@@ -404,14 +405,18 @@
             if(v==='cart'||v==='account') updateAuthUI(); 
             if(v==='cart') { renderCart(); setTimeout(updatePaymentUI, 100); }
         }
-        
         function renderCatalog(){const c=document.getElementById('catalog-container');c.innerHTML='';db.forEach(s=>{let h='';s.items.forEach(i=>{h+=`<div onclick="openProduct(${i.id})" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer p-5 flex flex-col group h-full"><div class="h-40 bg-teal-50 rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition duration-300">${i.icon}</div><h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight">${i.name}</h3><div class="mt-auto pt-4 flex justify-between items-center"><span class="font-bold text-teal-700">R$ ${i.price.toFixed(2).replace('.', ',')}</span><span class="text-xs text-gray-400 font-medium group-hover:text-teal-600">Ver detalhes →</span></div></div>`});c.innerHTML+=`<div><div class="flex items-center gap-3 mb-6"><div class="h-8 w-1 bg-teal-500 rounded-full"></div><h2 class="text-2xl font-bold text-gray-800">${s.title}</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">${h}</div></div>`})}
         function openProduct(id){let p=null,c="";db.forEach(s=>{const f=s.items.find(i=>i.id===id);if(f){p=f;c=s.title}});if(!p)return;currentItem=p;currentQty=1;document.getElementById('detail-icon').textContent=p.icon;document.getElementById('detail-category').textContent=c;document.getElementById('detail-title').textContent=p.name;document.getElementById('detail-desc').textContent=p.desc;document.getElementById('detail-price').textContent=`R$ ${p.price.toFixed(2).replace('.', ',')}`;document.getElementById('detail-qty').textContent=currentQty;router('product')}
         function updateQty(n){if(currentQty+n>=1){currentQty+=n;document.getElementById('detail-qty').textContent=currentQty}}
         function showToast(m){const t=document.getElementById("toast");t.innerHTML=`<i class="fa-solid fa-check-circle mr-2"></i> ${m}`;t.className="show";setTimeout(()=>t.className="",3000)}
-        function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!");}
-        function updateCartIcon(){document.getElementById('cart-count').textContent=cart.reduce((a,i)=>a+i.qty,0)}
-        function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon()}
+        function addToCartCurrent(){const ex=cart.find(i=>i.id===currentItem.id);if(ex)ex.qty+=currentQty;else cart.push({...currentItem,qty:currentQty});updateCartIcon();showToast("Adicionado!"); saveCart();}
+        function updateCartIcon(){
+            const q=cart.reduce((a,i)=>a+i.qty,0); 
+            const el=document.getElementById('cart-count');
+            el.textContent=q;
+            if(q>0) el.classList.remove('hidden'); else el.classList.add('hidden');
+        }
+        function removeFromCart(i){cart.splice(i,1);renderCart();updateCartIcon();saveCart();}
         function renderCart(){const c=document.getElementById('cart-items-container');c.innerHTML='';if(cart.length===0){c.innerHTML='<div class="text-center py-10 text-gray-400">Vazio</div>'}else{cart.forEach((i,idx)=>{c.innerHTML+=`<div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg"><div class="flex items-center gap-4"><div class="text-2xl">${i.icon}</div><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-xs text-gray-500">R$ ${i.price.toFixed(2).replace('.',',')} x ${i.qty}</p></div></div><div class="flex items-center gap-3"><span class="font-bold text-sm text-teal-700">R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span><button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div></div>`});}calculateTotal()}
         
         function maskCpfCnpj(i){ let v=i.value.replace(/\D/g,""); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d)/,"$1.$2");v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2")}else{v=v.replace(/^(\d{2})(\d)/,"$1.$2");v=v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");v=v.replace(/\.(\d{3})(\d)/,".$1/$2");v=v.replace(/(\d{4})(\d)/,"$1-$2")}i.value=v.substring(0,18)}
@@ -437,11 +442,26 @@
         }
 
         function calculateTotal() {
-            if(cart.length===0) { document.getElementById('cart-subtotal').textContent='R$ 0,00'; document.getElementById('cart-total').textContent='R$ 0,00'; return {finalTotal:0,method:'NONE',installments:1}; }
+            // Garante que o total seja calculado mesmo na inicialização
+            if(cart.length===0) {
+                document.getElementById('cart-subtotal').textContent='R$ 0,00'; 
+                document.getElementById('cart-total').textContent='R$ 0,00'; 
+                return {finalTotal:0,method:'NONE',installments:1}; 
+            }
+            
             const base=cart.reduce((a,i)=>a+(i.price*i.qty),0);
-            const m=document.querySelector('input[name="payment_method"]:checked').value;
+            const mEl=document.querySelector('input[name="payment_method"]:checked');
+            const m=mEl ? mEl.value : 'PIX'; // Fallback seguro
             let final=base; let inst=1;
-            if(m==='CREDIT_CARD'){inst=parseInt(document.getElementById('installments').value)||1; final=base*(1+(fees.CREDIT_CARD[inst]||0))}
+            
+            if(m==='CREDIT_CARD'){
+                const instEl = document.getElementById('installments');
+                inst = instEl && instEl.value ? parseInt(instEl.value) : 1;
+                final = base*(1+(fees.CREDIT_CARD[inst]||0));
+            } else {
+                final = base*(1+(fees[m]||0));
+            }
+            
             document.getElementById('cart-subtotal').textContent=`R$ ${base.toFixed(2).replace('.',',')}`;
             document.getElementById('cart-total').textContent=`R$ ${final.toFixed(2).replace('.',',')}`;
             return {finalTotal:final, method:m, installments:inst};
@@ -452,13 +472,12 @@
             if(!form.checkValidity()){showToast("Preencha todos os dados!");form.reportValidity();return}
             if(cart.length===0) { showToast("Carrinho vazio!"); return; }
 
-            const {finalTotal} = calculateTotal();
+            const {finalTotal, method, installments} = calculateTotal();
             if (finalTotal <= 0) { alert("Erro no cálculo do valor."); return; }
 
             const btn=document.getElementById('btn-checkout'); const txt=btn.innerHTML;
             btn.innerHTML=`<span class="loader mr-2"></span> Processando...`; btn.disabled=true;
 
-            const { method, installments } = calculateTotal();
             const desc = cart.map(i=>`${i.qty}x ${i.name}`).join(', ')+` (${method})`;
 
             const customer = {
@@ -484,8 +503,11 @@
                     body: JSON.stringify({ customer, payment: { value: finalTotal.toFixed(2), description: `Hub: ${desc}`, billingType: billingTypeAPI, installmentCount: installments } })
                 });
                 const d = await res.json();
-                if(res.ok && d.paymentUrl) window.location.href=d.paymentUrl;
-                else throw new Error(d.error||(d.details?d.details:'Erro na criação do pagamento.'));
+                if(res.ok && d.paymentUrl) {
+                    window.location.href=d.paymentUrl;
+                } else {
+                    throw new Error(d.error||(d.details?d.details:'Erro na criação do pagamento.'));
+                }
             } catch(e){
                 console.error(e); alert("Erro: "+e.message); btn.innerHTML=txt; btn.disabled=false;
             }
