@@ -5,13 +5,16 @@ exports.handler = async function(event, context) {
         'Content-Type': 'application/json'
     };
 
-    if (event.httpMethod === 'OPTIONS') { return { statusCode: 200, headers, body: '' }; }
-    if (event.httpMethod !== 'POST') { return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método não permitido' }) }; }
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
+    if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método não permitido' }) };
 
     try {
         if (!event.body) throw new Error('Corpo vazio.');
         const data = JSON.parse(event.body);
         const { customer, payment } = data;
+
+        // Validação
+        if (!customer || !customer.cpf || !customer.name) throw new Error('Dados do cliente incompletos.');
 
         const API_URL = 'https://sandbox.asaas.com/api/v3';
         const API_KEY = process.env.ASAAS_API_KEY;
@@ -23,6 +26,7 @@ exports.handler = async function(event, context) {
                 headers: { 'Content-Type': 'application/json', 'access_token': API_KEY }
             };
             if (bodyContent) options.body = JSON.stringify(bodyContent);
+
             const response = await fetch(`${API_URL}${endpoint}`, options);
             const json = await response.json();
             if (!response.ok) {
@@ -36,6 +40,7 @@ exports.handler = async function(event, context) {
         let customerId = null;
         const cpfLimpo = customer.cpf.replace(/\D/g, '');
         const searchRes = await fetchAsaas(`/customers?cpfCnpj=${cpfLimpo}`, 'GET');
+
         if (searchRes.data && searchRes.data.length > 0) {
             customerId = searchRes.data[0].id;
         } else {
